@@ -1,0 +1,33 @@
+# Python / uv
+.venv/
+__pycache__/
+*.egg-info/
+build/
+dist/
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+.scannerwork/
+.vscode/
+htmlcov/
+.coverage
+report.html
+dependency-check-report.html
+
+# Doku und Logs
+docs/build/
+docs/diagramme/out/
+site/
+log/
+
+# Sonstiges
+*.xlsx
+
+# Sensible Daten: niemals einchecken
+.env
+sonar-project.properties
+extras/compose/**/password.txt
+extras/compose/**/db_password.txt
+src/hotelgast/config/resources/tls/key.pem
+src/hotelgast/config/resources/tls/private-key.pem
