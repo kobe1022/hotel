@@ -10,4 +10,4 @@ In Arbeit. Das Projekt wird schrittweise aufgebaut (siehe Issues bzw. Project Bo
 ## Autoren
 
 - Benjamin Köken
-- (Partner/in eintragen)
+- Aaron Stief
