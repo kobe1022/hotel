@@ -1,0 +1,34 @@
+# Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+"""HealthRouter."""
+
+from typing import Final
+
+from fastapi import APIRouter
+
+__all__ = ["router"]
+
+router: Final = APIRouter(tags=["Health"])
+
+
+@router.get("/liveness")
+def liveness() -> dict[str, str]:
+    """Überprüfen der Liveness.
+
+    :return: JSON-Datensatz mit der Statusmeldung
+    :rtype: dict[str, Any]
+    """
+    return {"status": "up"}
