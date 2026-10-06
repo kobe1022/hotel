@@ -13,21 +13,12 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
--- https://www.postgresql.org/docs/current/sql-dropindex.html
-DROP INDEX IF EXISTS
-    adresse_gast_id_idx,
-    adresse_plz_idx,
-    buchung_gast_id_idx,
-    gast_nachname_idx;
+-- Aufruf:   psql --dbname=gast --username=gast --file=/init/gast/sql/create-schema.sql
 
--- https://www.postgresql.org/docs/current/sql-droptable.html
-DROP TABLE IF EXISTS
-    adresse,
-    buchung,
-    gast;
+-- https://www.postgresql.org/docs/devel/app-psql.html
+-- https://www.postgresql.org/docs/current/ddl-schemas.html
+-- https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-CREATE
+-- "user-private schema" (Default-Schema: public)
+CREATE SCHEMA IF NOT EXISTS AUTHORIZATION gast;
 
--- https://www.postgresql.org/docs/current/sql-droptype.html
-DROP TYPE IF EXISTS
-    zimmerkategorie,
-    verpflegung,
-    zahlungsart;
+ALTER ROLE gast SET search_path = 'gast';

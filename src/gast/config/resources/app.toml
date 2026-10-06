@@ -25,6 +25,20 @@
 # key = "key.pem"
 # certificate = "certificate.crt"
 
+[db]
+# dialect = "postgresql"
+# username = "gast"
+# name = "gast"
+password = "p"
+password-admin = "p"
+host = "localhost"
+# locust: auskommentieren
+log-statements = true
+
 [logger]
 # locust: auskommentieren
 debug-level = true
+
+[dev]
+db-populate = true
+keycloak-populate = true

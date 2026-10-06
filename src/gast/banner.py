@@ -25,12 +25,17 @@ from types import FunctionType
 from typing import Final, NamedTuple
 
 import fastapi
+import psycopg
 import pydantic
+import sqlalchemy
 import starlette
 from loguru import logger
 from pyfiglet import Figlet
 from starlette.routing import BaseRoute, Route
 from tabulate import tabulate
+
+from gast.config import db_url
+from gast.repository import engine
 
 
 # tabulate() hat ein Argument vom Typ "Tuple" und nicht dataclass
@@ -112,6 +117,11 @@ def banner(routes: list[BaseRoute]) -> None:
     print(figlet.renderText("gast"))
 
     rechnername: Final = gethostname()
+    # Default Isolation Level "read committed": Schreibsperren und keine Lesesperren
+    # https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#transaction-isolation-level
+    # https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION
+
+    db_dialect: Final = engine.dialect
     logger.info("Python           {}", sys.version_info)
     logger.info("Plattform        {}", get_platform())
     logger.info("FastAPI          {}", fastapi.__version__)
@@ -119,6 +129,15 @@ def banner(routes: list[BaseRoute]) -> None:
     logger.info("Starlette        {}", starlette.__version__)
     logger.info("Pydantic         {}", pydantic.__version__)
     logger.info("Strawberry       {}", version("strawberry-graphql"))
+    logger.info("SQLAlchemy       {}", sqlalchemy.__version__)
+    logger.info("psycopg          {}", psycopg.__version__)
+    logger.info("DB URL           {}", db_url)
+    logger.info("Identity Columns {}", db_dialect.supports_identity_columns)
+    logger.info("Sequence         {}", db_dialect.supports_sequences)
+    logger.info("Boolean          {}", db_dialect.supports_native_boolean)
+    logger.info("Decimal          {}", db_dialect.supports_native_decimal)
+    logger.info("Enum             {}", db_dialect.supports_native_enum)
+    logger.info("UPDATE RETURNING {}", db_dialect.update_returning)
     logger.info("Environment      {}", sys.prefix)
     logger.info("User             {}", getuser())
     logger.info("Locale           {}", getlocale())

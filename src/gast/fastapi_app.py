@@ -29,7 +29,9 @@ from pyinstrument import Profiler
 lazy from fastapi.responses import HTMLResponse
 
 from gast.banner import banner
-from gast.config import profiling
+from gast.config import dev_db_populate, profiling
+from gast.config.dev.db_populate import db_populate
+from gast.repository.session_factory import engine
 from gast.router import health_router, hello_router
 
 __all__: list[str] = []
@@ -42,12 +44,16 @@ __all__: list[str] = []
 # pylint: disable=redefined-outer-name
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    """Banner in der Konsole."""
+    """DB neu laden, falls im dev-Modus, sowie Banner in der Konsole."""
+    if dev_db_populate:
+        db_populate()
     banner(app.routes)
     try:
         yield
     finally:
         logger.info("Der Server wird heruntergefahren")
+        logger.info("Connection-Pool fuer die DB wird getrennt.")
+        engine.dispose()
 
 
 app: Final = FastAPI(lifespan=lifespan)
