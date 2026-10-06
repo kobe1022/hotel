@@ -1,18 +1,3 @@
-# Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 """Banner beim Start des Servers."""
 
 import sys
@@ -24,7 +9,9 @@ from sysconfig import get_platform
 from types import FunctionType
 from typing import Final, NamedTuple
 
+import cryptography
 import fastapi
+import keycloak
 import psycopg
 import pydantic
 import sqlalchemy
@@ -138,6 +125,8 @@ def banner(routes: list[BaseRoute]) -> None:
     logger.info("Decimal          {}", db_dialect.supports_native_decimal)
     logger.info("Enum             {}", db_dialect.supports_native_enum)
     logger.info("UPDATE RETURNING {}", db_dialect.update_returning)
+    logger.info("python-keycloak  {}", keycloak.__version__)
+    logger.info("cryptography     {}", cryptography.__version__)
     logger.info("Environment      {}", sys.prefix)
     logger.info("User             {}", getuser())
     logger.info("Locale           {}", getlocale())

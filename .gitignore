@@ -34,3 +34,4 @@ src/hotelgast/config/resources/tls/private-key.pem
 # Sensible Daten
 src/gast/config/resources/tls/key.pem
 extras/compose/postgres/init/tls/server.key
+extras/compose/keycloak/tls/key.pem
