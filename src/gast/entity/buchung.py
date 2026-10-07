@@ -25,7 +25,7 @@ class Buchung(Base):
     """Der Betrag."""
 
     waehrung: Mapped[str]
-    """Die Währung"""
+    """Die Währung in Euro."""
 
     # https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html#orm-declarative-mapped-column-enums
     zimmerkategorie: Mapped[Zimmerkategorie]
