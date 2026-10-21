@@ -5,7 +5,9 @@ from time import time
 from typing import Final
 lazy from collections.abc import AsyncGenerator, Awaitable, Callable
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import (
     GZipMiddleware,  # https://fastapi.tiangolo.com/advanced/middleware/#gzipmiddleware
 )
@@ -16,6 +18,7 @@ lazy from fastapi.responses import HTMLResponse
 from gast.banner import banner
 from gast.config import dev_db_populate, profiling
 from gast.config.dev.db_populate import db_populate
+from gast.problem_details import ProblemDetails
 from gast.repository.session_factory import engine
 from gast.router import (
     gast_router,
@@ -102,6 +105,18 @@ async def add_security_headers(
 ) -> Response:
     response = await call_next(request)
     return set_response_headers(response)
+
+
+@app.exception_handler(RequestValidationError)
+def handle_validation_error(
+    _request: Request,
+    exc: RequestValidationError,
+) -> Response:
+    """Pydantic-Validierungsfehler als ProblemDetails gemäß RFC 7807 ausliefern."""
+    return ProblemDetails.create(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail=jsonable_encoder(exc.errors()),
+    ).to_response()
 
 
 # --------------------------------------------------------------------------------------
