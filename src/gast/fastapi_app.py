@@ -17,7 +17,14 @@ from gast.banner import banner
 from gast.config import dev_db_populate, profiling
 from gast.config.dev.db_populate import db_populate
 from gast.repository.session_factory import engine
-from gast.router import health_router, hello_router
+from gast.router import (
+    gast_router,
+    gast_write_router,
+    health_router,
+    hello_router,
+    shutdown_router,
+)
+from gast.security import router as auth_router, set_response_headers
 
 __all__: list[str] = []
 
@@ -88,8 +95,21 @@ async def log_response_time(
     return response
 
 
+@app.middleware("http")
+async def add_security_headers(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
+    response = await call_next(request)
+    return set_response_headers(response)
+
+
 # --------------------------------------------------------------------------------------
 # R E S T
 # --------------------------------------------------------------------------------------
 app.include_router(health_router, prefix="/health")
 app.include_router(hello_router, prefix="/hello")
+app.include_router(auth_router, prefix="/auth")
+app.include_router(gast_router, prefix="/rest")
+app.include_router(gast_write_router, prefix="/rest")
+app.include_router(shutdown_router, prefix="/shutdown")
