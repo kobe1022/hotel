@@ -15,6 +15,8 @@ lazy from gast.entity import Gast
 class GastDTO:
     """DTO-Klasse für GastDaten."""
 
+    id: int | None
+    version: int
     vorname: str
     nachname: str
     email: str
@@ -31,6 +33,8 @@ class GastDTO:
         if not gast:
             raise GastRequiredError
         return cls(
+            id=gast.id,
+            version=gast.version,
             vorname=gast.vorname,
             nachname=gast.nachname,
             email=gast.email,
