@@ -10,6 +10,7 @@ dist/
 .ruff_cache/
 .scannerwork/
 .vscode/
+assets/
 htmlcov/
 .coverage
 report.html
