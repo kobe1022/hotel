@@ -10,7 +10,7 @@ from gast.service.gast_service import GastService
 from gast.service.gast_write_service import GastWriteService
 lazy from gast.security.user_service import UserService
 
-__all__ = ["get_service", "get_write_service", "get_repository"]
+__all__ = ["get_repository", "get_service", "get_write_service"]
 
 
 def get_repository() -> GastRepository:

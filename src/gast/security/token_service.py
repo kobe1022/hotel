@@ -1,12 +1,12 @@
 """Anwendungskern für Benutzerdaten."""
 
-from collections.abc import Mapping
 from typing import Any, Final
+lazy from collections.abc import Mapping
 
-from fastapi import Request
 from jwcrypto.common import JWException
 from keycloak import KeycloakAuthenticationError, KeycloakOpenID, KeycloakOperationError
 from loguru import logger
+lazy from fastapi import Request
 
 from gast.config import keycloak_config
 from gast.security.exceptions import AuthorizationError, LoginError

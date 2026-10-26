@@ -2,7 +2,7 @@
 
 from typing import Final
 
-from fastapi import Response
+lazy from fastapi import Response
 
 __all__ = ["set_response_headers"]
 

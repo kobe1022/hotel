@@ -7,8 +7,8 @@ from loguru import logger
 
 from gast.security.dependencies import get_token_service
 from gast.security.role import Role
-from gast.security.token_service import TokenService
-from gast.security.user import User
+lazy from gast.security.token_service import TokenService
+lazy from gast.security.user import User
 
 __all__ = ["RolesRequired"]
 

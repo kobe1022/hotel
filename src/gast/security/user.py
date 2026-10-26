@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from gast.security.role import Role
+lazy from gast.security.role import Role
 
 
 @dataclass(frozen=True, eq=False, slots=True, kw_only=True)

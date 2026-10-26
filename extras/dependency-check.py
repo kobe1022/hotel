@@ -32,7 +32,7 @@ script = base_exec_path / "dependency-check" / "bin" / base_script
 print(f"script={script}")
 
 data_path = base_data_path / "dependency-check-data"
-pyproject_path = Path(".")
+pyproject_path = Path()
 report_path = "."
 
 options = " ".join([
