@@ -20,10 +20,12 @@ from pyinstrument import Profiler
 from gast.banner import banner
 from gast.config import dev_db_populate, dev_keycloak_populate, profiling
 from gast.config.dev.db_populate import db_populate
+from gast.config.dev.db_populate_router import router as db_populate_router
 from gast.config.dev.keycloak_populate import keycloak_populate
 from gast.config.dev.keycloak_populate_router import (
     router as keycloak_populate_router,
 )
+from gast.graphql_api import graphql_router
 from gast.problem_details import ProblemDetails
 from gast.repository.session_factory import engine
 from gast.router import (
@@ -151,8 +153,16 @@ app.include_router(health_router, prefix="/health")
 app.include_router(shutdown_router, prefix="/admin")
 app.include_router(hello_router, prefix="/hello")
 
+if dev_db_populate:
+    app.include_router(db_populate_router, prefix="/dev")
 if dev_keycloak_populate:
     app.include_router(keycloak_populate_router, prefix="/dev")
+
+
+# --------------------------------------------------------------------------------------
+# G r a p h Q L
+# --------------------------------------------------------------------------------------
+app.include_router(graphql_router, prefix="/graphql")
 
 
 # --------------------------------------------------------------------------------------

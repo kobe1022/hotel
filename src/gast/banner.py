@@ -12,6 +12,7 @@ from typing import Final, NamedTuple
 import cryptography
 import fastapi
 import keycloak
+import openpyxl
 import psycopg
 import pydantic
 import sqlalchemy
@@ -127,6 +128,7 @@ def banner(routes: list[BaseRoute]) -> None:
     logger.info("UPDATE RETURNING {}", db_dialect.update_returning)
     logger.info("python-keycloak  {}", keycloak.__version__)
     logger.info("cryptography     {}", cryptography.__version__)
+    logger.info("openpyxl         {}", openpyxl.__version__)
     logger.info("Environment      {}", sys.prefix)
     logger.info("User             {}", getuser())
     logger.info("Locale           {}", getlocale())

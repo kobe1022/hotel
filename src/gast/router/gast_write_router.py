@@ -2,13 +2,14 @@
 
 from typing import Annotated, Final
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
 from loguru import logger
 
 from gast.problem_details import ProblemDetails
 from gast.router.constants import IF_MATCH, IF_MATCH_MIN_LEN
 from gast.router.dependencies import get_write_service
 from gast.security import Role, RolesRequired
+from gast.service import send_mail
 lazy from gast.router.gast_model import GastModel
 lazy from gast.router.gast_update_model import GastUpdateModel
 lazy from gast.service import GastWriteService
@@ -23,6 +24,7 @@ gast_write_router: Final = APIRouter(tags=["Schreiben"])
 def post(
     gast_model: GastModel,
     request: Request,
+    background_tasks: BackgroundTasks,
     service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
     """POST-Request, um einen neuen Gast anzulegen.
@@ -30,6 +32,7 @@ def post(
     :param gast_model: Gastdaten als Pydantic-Model
     :param request: Injiziertes Request-Objekt von FastAPI bzw. Starlette
         mit der Request-URL
+    :param background_tasks: Hintergrundtask für den Mailversand
     :param service: Injizierter Service für Geschäftslogik
     :rtype: Response
     :raises ValidationError: Falls es bei Pydantic Validierungsfehler gibt
@@ -42,9 +45,12 @@ def post(
     )
     logger.debug("gast_dto={}", gast_dto)
 
+    background_tasks.add_task(send_mail, gast_dto)
+
     return Response(
         status_code=status.HTTP_201_CREATED,
         headers={"Location": f"{request.url}/{gast_dto.id}"},
+        background=background_tasks,
     )
 
 

@@ -20,6 +20,18 @@ host = "localhost"
 # locust: auskommentieren
 log-statements = true
 
+[mail]
+# enabled = false
+host = "localhost"
+# host = "mail"
+port = 1025
+# timeout = 1.0
+# sender = "Python Server <python.server@acme.com>"
+# receivers = ["Rezeption <rezeption@acme.com>"]
+
+[excel]
+enabled = true
+
 [keycloak]
 # schema = "https"
 host = "localhost"
@@ -31,6 +43,10 @@ client-secret = "Change Me!"
 # admin = "admin"
 admin-password = "p"
 csv = "extras/compose/postgres/init/gast/csv/gast.csv"
+
+[graphql]
+# locust: auskommentieren
+graphiql-enabled = true
 
 [logger]
 # locust: auskommentieren

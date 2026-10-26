@@ -8,11 +8,14 @@ from gast.config.db import (
     db_url_admin,
 )
 from gast.config.dev_modus import dev_db_populate, dev_keycloak_populate
+from gast.config.excel import excel_enabled
+from gast.config.graphql import graphql_ide
 from gast.config.keycloak import (
     csv_config,
     keycloak_admin_config,
     keycloak_config,
 )
+from gast.config.mail import mail_config, receiver, sender
 from gast.config.server import host_binding, port, profiling
 from gast.config.tls import tls_certfile, tls_keyfile
 
@@ -25,11 +28,16 @@ __all__ = [
     "db_url_admin",
     "dev_db_populate",
     "dev_keycloak_populate",
+    "excel_enabled",
+    "graphql_ide",
     "host_binding",
     "keycloak_admin_config",
     "keycloak_config",
+    "mail_config",
     "port",
     "profiling",
+    "receiver",
+    "sender",
     "tls_certfile",
     "tls_keyfile",
 ]

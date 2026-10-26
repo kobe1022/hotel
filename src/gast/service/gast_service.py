@@ -1,10 +1,14 @@
 """Geschäftslogik zum Lesen von Gastdaten."""
 
+from datetime import datetime
 from typing import Final
+from zoneinfo import ZoneInfo
 lazy from collections.abc import Sequence
 
 from loguru import logger
+from openpyxl import Workbook
 
+from gast.config import excel_enabled
 from gast.repository import (
     GastRepository,
     GastSuchparameter,
@@ -103,6 +107,8 @@ class GastService:
             )
             session.commit()
 
+        if excel_enabled:
+            self._create_excelsheet(gaeste_dto)
         gaeste_dto_slice = Slice(
             content=gaeste_dto,
             total_elements=gast_slice.total_elements,
@@ -127,3 +133,28 @@ class GastService:
         if len(nachnamen) == 0:
             raise NotFoundError
         return nachnamen
+
+    def _create_excelsheet(self, gaeste: tuple[GastDTO, ...]) -> None:
+        """Ein Excelsheet mit den gefundenen Gästen erstellen.
+
+        :param gaeste: Gästedaten für das Excelsheet
+        """
+        # https://automatetheboringstuff.com/2e/chapter13
+        workbook: Final = Workbook()
+        worksheet: Final = workbook.active
+        if worksheet is None:
+            return
+
+        worksheet.append(["Vorname", "Nachname", "Emailadresse", "Treuestufe"])
+        for gast in gaeste:
+            worksheet.append((
+                gast.vorname,
+                gast.nachname,
+                gast.email,
+                gast.treuestufe,
+            ))
+
+        timestamp: Final = datetime.now(tz=ZoneInfo("Europe/Berlin")).strftime(
+            format="%Y-%m-%d_%H%M%S",
+        )
+        workbook.save(f"gaeste-{timestamp}.xlsx")
