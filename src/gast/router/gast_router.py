@@ -4,12 +4,11 @@ from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 
-from gast.problem_details import ProblemDetails
 from gast.router.constants import ETAG, IF_NONE_MATCH, IF_NONE_MATCH_MIN_LEN
 from gast.router.dependencies import get_gast_service
 from gast.router.gast_find_model import GastFindModel
 from gast.security import Role, RolesRequired
-from gast.service import GastDTO, GastService, NotFoundError
+from gast.service import GastDTO, GastService
 
 __all__ = ["router"]
 
@@ -79,13 +78,7 @@ def get_by_id(
     :param service: Injizierter GastService
     :return: 200 mit Gastdaten und ETag, 304 falls unverändert, 404 falls nicht gefunden
     """
-    try:
-        gast_dto = service.find_by_id(gast_id=id)
-    except NotFoundError:
-        return ProblemDetails.create(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Kein Gast mit der ID {id} gefunden",
-        ).to_response()
+    gast_dto = service.find_by_id(gast_id=id)
 
     etag = f'"{gast_dto.version}"'
     if_none_match = request.headers.get(IF_NONE_MATCH)

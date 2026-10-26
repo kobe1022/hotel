@@ -11,13 +11,7 @@ from gast.router.dependencies import get_gast_write_service
 from gast.router.gast_model import GastModel
 from gast.router.gast_update_model import GastUpdateModel
 from gast.security import Role, RolesRequired
-from gast.service import (
-    EmailExistsError,
-    GastWriteService,
-    NotFoundError,
-    UsernameExistsError,
-    VersionOutdatedError,
-)
+lazy from gast.service import GastWriteService
 
 __all__ = ["router"]
 
@@ -42,16 +36,9 @@ def create(
     :param gast_model: Die Gastdaten aus dem Request-Body
     :param request: Request-Objekt, um die Location-URL zusammenzubauen
     :param write_service: Injizierter GastWriteService
-    :return: 201 mit Location-Header, 400 falls Email/Username bereits vergeben
+    :return: 201 mit Location-Header
     """
-    try:
-        erzeugt = write_service.create(gast=gast_model.to_entity())
-    except (EmailExistsError, UsernameExistsError) as err:
-        return ProblemDetails.create(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(err),
-        ).to_response()
-
+    erzeugt = write_service.create(gast=gast_model.to_entity())
     location = f"{request.url}{erzeugt.id}"
     logger.debug("location={}", location)
     return Response(
@@ -77,7 +64,7 @@ def update(
     :param gast_update_model: Die neuen Gastdaten aus dem Request-Body
     :param request: Request-Objekt, um den If-Match-Header auszuwerten
     :param write_service: Injizierter GastWriteService
-    :return: 204 bei Erfolg, 400/404/412/428 im Fehlerfall
+    :return: 204 bei Erfolg, 412/428 bei fehlerhaftem If-Match-Header
     """
     if_match = request.headers.get(IF_MATCH)
     if if_match is None:
@@ -93,28 +80,11 @@ def update(
             detail="Der Header 'If-Match' ist ungueltig.",
         ).to_response()
 
-    try:
-        write_service.update(
-            gast=gast_update_model.to_entity(),
-            gast_id=id,
-            version=int(version),
-        )
-    except NotFoundError as err:
-        return ProblemDetails.create(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(err),
-        ).to_response()
-    except VersionOutdatedError as err:
-        return ProblemDetails.create(
-            status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail=str(err),
-        ).to_response()
-    except EmailExistsError as err:
-        return ProblemDetails.create(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(err),
-        ).to_response()
-
+    write_service.update(
+        gast=gast_update_model.to_entity(),
+        gast_id=id,
+        version=int(version),
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
