@@ -7,6 +7,8 @@ import strawberry
 from gast.service.exceptions import AdresseRequiredError
 lazy from gast.entity import Adresse
 
+__all__ = ["AdresseDTO"]
+
 
 @dataclass(eq=False, slots=True, kw_only=True)
 @strawberry.type(name="Adresse")
@@ -17,7 +19,7 @@ class AdresseDTO:
     ort: str
 
     @classmethod
-    def from_entity(cls, adresse: Adresse | None) -> AdresseDTO:
+    def from_adresse(cls, adresse: Adresse | None) -> AdresseDTO:
         """Create an AdresseDTO from an Adresse entity."""
         if adresse is None:
             raise AdresseRequiredError

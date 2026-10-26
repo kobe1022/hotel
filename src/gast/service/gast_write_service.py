@@ -65,7 +65,7 @@ class GastWriteService:
             logger.debug("user_id={}", user_id)
 
             gast_db: Final = self._repository.create(gast=gast, session=session)
-            gast_dto: Final = GastDTO.from_entity(gast_db)
+            gast_dto: Final = GastDTO.from_gast(gast_db)
             session.commit()
 
         # TODO User aus Keycloak löschen, falls die DB-Transaktion fehlschlägt
@@ -102,7 +102,7 @@ class GastWriteService:
             aktualisiert = self._repository.update(gast=gast_db, session=session)
             if aktualisiert is None:
                 raise NotFoundError(gast_id)
-            gast_dto: Final = GastDTO.from_entity(aktualisiert)
+            gast_dto: Final = GastDTO.from_gast(aktualisiert)
 
             session.commit()
             # CAVEAT: Die erhöhte Versionsnummer ist erst nach dem COMMIT sichtbar

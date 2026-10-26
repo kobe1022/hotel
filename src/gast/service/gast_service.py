@@ -44,7 +44,7 @@ class GastService:
             if gast.username != user.username and not user_is_admin:
                 raise ForbiddenError
 
-            return GastDTO.from_entity(gast)
+            return GastDTO.from_gast(gast)
 
     def find(
         self,
@@ -65,7 +65,7 @@ class GastService:
                 session=session,
             )
             return Slice(
-                content=tuple(GastDTO.from_entity(gast) for gast in gast_slice.content),
+                content=tuple(GastDTO.from_gast(gast) for gast in gast_slice.content),
                 total_elements=gast_slice.total_elements,
             )
 
