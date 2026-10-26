@@ -4,6 +4,7 @@ from gast.service.adresse_dto import AdresseDTO
 from gast.service.exceptions import (
     AdresseRequiredError,
     EmailExistsError,
+    EmptyUsernameError,
     GastRequiredError,
     NotFoundError,
     UsernameExistsError,
@@ -17,6 +18,7 @@ __all__ = [
     "AdresseDTO",
     "AdresseRequiredError",
     "EmailExistsError",
+    "EmptyUsernameError",
     "GastDTO",
     "GastRequiredError",
     "GastService",

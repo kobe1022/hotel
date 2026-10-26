@@ -17,6 +17,14 @@ class AdresseRequiredError(ValueError):
         super().__init__("Adresse is required")
 
 
+class EmptyUsernameError(ValueError):
+    """Wird ausgelöst, wenn der Benutzername fehlt oder leer ist."""
+
+    def __init__(self) -> None:
+        """EmptyUsernameError mit Standardmeldung erzeugen."""
+        super().__init__("username ist None oder leer")
+
+
 class NotFoundError(ValueError):
     """Wird ausgelöst, wenn kein Gast mit der gegebenen ID existiert."""
 

@@ -2,9 +2,13 @@
 
 from typing import Final
 
+from loguru import logger
+
 from gast.repository import Session
+from gast.security import User, UserService
 from gast.service.exceptions import (
     EmailExistsError,
+    EmptyUsernameError,
     NotFoundError,
     UsernameExistsError,
     VersionOutdatedError,
@@ -19,9 +23,10 @@ __all__ = ["GastWriteService"]
 class GastWriteService:
     """Service-Klasse mit schreibenden Zugriffen auf Gastdaten."""
 
-    def __init__(self, repo: GastRepository) -> None:
-        """Konstruktor mit abhängigem GastRepository."""
+    def __init__(self, repo: GastRepository, user_service: UserService) -> None:
+        """Konstruktor mit abhängigem GastRepository und UserService."""
         self._repository: Final = repo
+        self._user_service: Final = user_service
 
     def create(self, gast: Gast) -> GastDTO:
         """Lege einen neuen Gast an.
@@ -29,15 +34,41 @@ class GastWriteService:
         :param gast: Die Daten des neuen Gastes ohne ID
         :return: Der neu angelegte Gast mit generierter ID
         :rtype: GastDTO
+        :raises EmptyUsernameError: falls der Benutzername fehlt
         :raises EmailExistsError: falls die Emailadresse bereits existiert
         :raises UsernameExistsError: falls der Benutzername bereits existiert
         """
+        username: Final = gast.username
+        if username is None:
+            raise EmptyUsernameError
+
+        # https://www.keycloak.org/docs-api/latest/rest-api:
+        # GET /admin/realms/{realm}/users
+        if self._user_service.username_exists(username):
+            raise UsernameExistsError(username)
+        if self._user_service.email_exists(gast.email):
+            raise EmailExistsError(gast.email)
+
         with Session() as session:
             self._check_email_exists(email=gast.email, session=session)
-            self._check_username_exists(username=gast.username, session=session)
+            self._check_username_exists(username=username, session=session)
+
+            user: Final = User(
+                username=username,
+                email=gast.email,
+                nachname=gast.nachname,
+                vorname=gast.vorname,
+                password="p",  # ruff: ignore[hardcoded-password-func-arg] # NOSONAR
+                roles=[],
+            )
+            user_id = self._user_service.create_user(user)
+            logger.debug("user_id={}", user_id)
+
             gast_db: Final = self._repository.create(gast=gast, session=session)
             gast_dto: Final = GastDTO.from_entity(gast_db)
             session.commit()
+
+        # TODO User aus Keycloak löschen, falls die DB-Transaktion fehlschlägt
         return gast_dto
 
     def update(self, gast: Gast, gast_id: int, version: int) -> GastDTO:
