@@ -1,37 +1,34 @@
 """Factory-Funktionen für Dependency Injection."""
 
-from collections.abc import Generator
+from typing import Annotated
 
-from sqlalchemy.orm import Session
+from fastapi import Depends
 
-from gast.repository import Session as SessionFactory
+from gast.repository.gast_repository import GastRepository
 from gast.service.gast_service import GastService
 from gast.service.gast_write_service import GastWriteService
 
-__all__ = ["get_gast_service", "get_gast_write_service", "get_session"]
+__all__ = ["get_gast_service", "get_gast_write_service", "get_repository"]
 
 
-def get_session() -> Generator[Session]:
-    """Factory-Funktion für eine SQLAlchemy-Session pro Request.
+def get_repository() -> GastRepository:
+    """Factory-Funktion für GastRepository.
 
-    Committet nach einem erfolgreichen Request, rollt bei einer Exception zurück.
+    :return: Das Repository
+    :rtype: GastRepository
     """
-    session = SessionFactory()
-    try:
-        yield session
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+    return GastRepository()
 
 
-def get_gast_service() -> GastService:
+def get_gast_service(
+    repo: Annotated[GastRepository, Depends(get_repository)],
+) -> GastService:
     """Factory-Funktion für GastService."""
-    return GastService()
+    return GastService(repo=repo)
 
 
-def get_gast_write_service() -> GastWriteService:
+def get_gast_write_service(
+    repo: Annotated[GastRepository, Depends(get_repository)],
+) -> GastWriteService:
     """Factory-Funktion für GastWriteService."""
-    return GastWriteService()
+    return GastWriteService(repo=repo)

@@ -2,16 +2,16 @@
 
 from typing import Final
 
-lazy from sqlalchemy.orm import Session
-
-from gast.repository.gast_repository import GastRepository
+from gast.repository import Session
 from gast.service.exceptions import (
     EmailExistsError,
     NotFoundError,
     UsernameExistsError,
     VersionOutdatedError,
 )
+from gast.service.gast_dto import GastDTO
 lazy from gast.entity import Gast
+lazy from gast.repository.gast_repository import GastRepository
 
 __all__ = ["GastWriteService"]
 
@@ -19,70 +19,73 @@ __all__ = ["GastWriteService"]
 class GastWriteService:
     """Service-Klasse mit schreibenden Zugriffen auf Gastdaten."""
 
-    def __init__(self) -> None:
-        """GastWriteService mit eigenem Repository erzeugen."""
-        self._repository: Final = GastRepository()
+    def __init__(self, repo: GastRepository) -> None:
+        """Konstruktor mit abhängigem GastRepository."""
+        self._repository: Final = repo
 
-    def create(self, gast: Gast, session: Session) -> Gast:
+    def create(self, gast: Gast) -> GastDTO:
         """Lege einen neuen Gast an.
 
         :param gast: Die Daten des neuen Gastes ohne ID
-        :param session: Session für SQLAlchemy
         :return: Der neu angelegte Gast mit generierter ID
-        :rtype: Gast
+        :rtype: GastDTO
         :raises EmailExistsError: falls die Emailadresse bereits existiert
         :raises UsernameExistsError: falls der Benutzername bereits existiert
         """
-        self._check_email_exists(email=gast.email, session=session)
-        self._check_username_exists(username=gast.username, session=session)
-        return self._repository.create(gast=gast, session=session)
+        with Session() as session:
+            self._check_email_exists(email=gast.email, session=session)
+            self._check_username_exists(username=gast.username, session=session)
+            gast_db: Final = self._repository.create(gast=gast, session=session)
+            gast_dto: Final = GastDTO.from_entity(gast_db)
+            session.commit()
+        return gast_dto
 
-    def update(
-        self,
-        gast_id: int,
-        neuer_gast: Gast,
-        version: int,
-        session: Session,
-    ) -> Gast:
+    def update(self, gast: Gast, gast_id: int, version: int) -> GastDTO:
         """Aktualisiere einen Gast.
 
+        :param gast: Die neuen Gastdaten
         :param gast_id: ID des zu aktualisierenden Gastes
-        :param neuer_gast: Die neuen Gastdaten
         :param version: Erwartete Versionsnummer für optimistische Synchronisation
-        :param session: Session für SQLAlchemy
         :return: Der aktualisierte Gast
-        :rtype: Gast
+        :rtype: GastDTO
         :raises NotFoundError: falls kein Gast mit der ID existiert
         :raises VersionOutdatedError: falls die Versionsnummer veraltet ist
         :raises EmailExistsError: falls die Emailadresse bereits bei einem anderen
             Gast existiert
         """
-        gast_db = self._repository.find_by_id(gast_id=gast_id, session=session)
-        if gast_db is None:
-            raise NotFoundError(gast_id)
+        with Session() as session:
+            gast_db = self._repository.find_by_id(gast_id=gast_id, session=session)
+            if gast_db is None:
+                raise NotFoundError(gast_id)
 
-        if version != gast_db.version:
-            raise VersionOutdatedError(gast_id=gast_id, version=version)
+            if version != gast_db.version:
+                raise VersionOutdatedError(gast_id=gast_id, version=version)
 
-        self._check_email_exists_other_id(
-            email=neuer_gast.email,
-            gast_id=gast_id,
-            session=session,
-        )
+            self._check_email_exists_other_id(
+                email=gast.email,
+                gast_id=gast_id,
+                session=session,
+            )
 
-        gast_db.set(neuer_gast)
-        aktualisiert = self._repository.update(gast=gast_db, session=session)
-        if aktualisiert is None:
-            raise NotFoundError(gast_id)
-        return aktualisiert
+            gast_db.set(gast)
+            aktualisiert = self._repository.update(gast=gast_db, session=session)
+            if aktualisiert is None:
+                raise NotFoundError(gast_id)
+            gast_dto: Final = GastDTO.from_entity(aktualisiert)
 
-    def delete_by_id(self, gast_id: int, session: Session) -> None:
+            session.commit()
+            # CAVEAT: Die erhöhte Versionsnummer ist erst nach dem COMMIT sichtbar
+            gast_dto.version += 1
+            return gast_dto
+
+    def delete_by_id(self, gast_id: int) -> None:
         """Lösche die Daten zu einem Gast.
 
         :param gast_id: Die ID des zu löschenden Gastes
-        :param session: Session für SQLAlchemy
         """
-        self._repository.delete_by_id(gast_id=gast_id, session=session)
+        with Session() as session:
+            self._repository.delete_by_id(gast_id=gast_id, session=session)
+            session.commit()
 
     def _check_email_exists(self, email: str, session: Session) -> None:
         if self._repository.exists_email(email=email, session=session):
