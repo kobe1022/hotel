@@ -37,7 +37,7 @@ def post(
     :param write_service: Injizierter GastWriteService
     :return: 201 mit Location-Header
     """
-    erzeugt = write_service.create(gast=gast_model.to_entity())
+    erzeugt = write_service.create(gast=gast_model.to_gast())
     location = f"{request.url}/{erzeugt.id}"
     logger.debug("location={}", location)
     return Response(
@@ -80,7 +80,7 @@ def put(
         ).to_response()
 
     write_service.update(
-        gast=gast_update_model.to_entity(),
+        gast=gast_update_model.to_gast(),
         gast_id=gast_id,
         version=int(version),
     )

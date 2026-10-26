@@ -1,35 +1,67 @@
-"""Pydantic-Modell für Buchungsdaten im Request-Body."""
+"""Pydantic-Model für die Buchungen."""
 
-from datetime import date
-from decimal import Decimal
+from typing import Annotated
+lazy from datetime import date
+lazy from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
-from gast.entity.buchung import Buchung
-from gast.entity.verpflegung import Verpflegung
-from gast.entity.zahlungsart import Zahlungsart
-from gast.entity.zimmerkategorie import Zimmerkategorie
+from gast.entity import Buchung, Verpflegung, Zahlungsart, Zimmerkategorie
 
 __all__ = ["BuchungModel"]
 
 
 class BuchungModel(BaseModel):
-    """Pydantic-Modell für Buchungsdaten im Request-Body."""
+    """Pydantic-Model für die Buchungen."""
 
-    model_config = ConfigDict(extra="forbid")
+    betrag: Decimal = Field(strict=False)
+    """Der Betrag. Keine strikte Validierung: JSON -> float in Python."""
+    waehrung: Annotated[str, StringConstraints(pattern=r"^[A-Z]{3}$")]
+    """Die Währung."""
+    zimmerkategorie: Zimmerkategorie = Field(strict=False)
+    """Die Zimmerkategorie. Keine strikte Validierung: String in JSON."""
+    verpflegung: Verpflegung = Field(strict=False)
+    """Die Verpflegung. Keine strikte Validierung: String in JSON."""
+    zahlungsart: Zahlungsart = Field(strict=False)
+    """Die Zahlungsart. Keine strikte Validierung: String in JSON."""
+    anreise: date = Field(strict=False)
+    """Das Anreisedatum. Keine strikte Validierung: String in JSON."""
+    abreise: date = Field(strict=False)
+    """Das Abreisedatum. Keine strikte Validierung: String in JSON."""
+    anzahl_gaeste: Annotated[int, Field(ge=1, le=10)]
+    """Die Anzahl der Gäste."""
 
-    betrag: Decimal
-    waehrung: str
-    zimmerkategorie: Zimmerkategorie
-    verpflegung: Verpflegung
-    zahlungsart: Zahlungsart
-    anreise: date
-    abreise: date
-    anzahl_gaeste: int
+    model_config = ConfigDict(
+        # Beispiel fuer OpenAPI
+        # https://fastapi.tiangolo.com/tutorial/schema-extra-example
+        json_schema_extra={
+            "example": {
+                "betrag": "999.99",
+                "waehrung": "EUR",
+                "zimmerkategorie": "DZ",
+                "verpflegung": "F",
+                "zahlungsart": "K",
+                "anreise": "2026-01-10",
+                "abreise": "2026-01-12",
+                "anzahl_gaeste": 2,
+            },
+        },
+        # https://docs.pydantic.dev/latest/concepts/strict_mode/#as-a-configuration-value
+        strict=True,
+        # https://pydantic.dev/docs/validation/latest/concepts/models/#extra-data
+        extra="forbid",
+        # https://pydantic.dev/docs/validation/latest/concepts/models/#faux-immutability
+        frozen=True,
+    )
 
-    def to_entity(self) -> Buchung:
-        """BuchungModel in ein transientes Buchung-Entity umwandeln."""
+    def to_buchung(self) -> Buchung:
+        """Konvertierung in ein Buchung-Objekt für SQLAlchemy.
+
+        :return: Buchung-Objekt für SQLAlchemy
+        :rtype: Buchung
+        """
         return Buchung(
+            id=None,
             betrag=self.betrag,
             waehrung=self.waehrung,
             zimmerkategorie=self.zimmerkategorie,
@@ -38,7 +70,6 @@ class BuchungModel(BaseModel):
             anreise=self.anreise,
             abreise=self.abreise,
             anzahl_gaeste=self.anzahl_gaeste,
-            id=None,
             gast_id=None,
             gast=None,
         )
