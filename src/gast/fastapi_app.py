@@ -2,10 +2,10 @@
 
 from contextlib import asynccontextmanager
 from time import time
-from typing import Final
+from typing import Any, Final
 lazy from collections.abc import AsyncGenerator, Awaitable, Callable
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.gzip import (
     GZipMiddleware,  # https://fastapi.tiangolo.com/advanced/middleware/#gzipmiddleware
 )
@@ -14,12 +14,36 @@ from pyinstrument import Profiler
 lazy from fastapi.responses import HTMLResponse
 
 from gast.banner import banner
-from gast.config import dev_db_populate, profiling
+from gast.config import dev_db_populate, dev_keycloak_populate, profiling
 from gast.config.dev.db_populate import db_populate
+from gast.config.dev.keycloak_populate import keycloak_populate
+from gast.config.dev.keycloak_populate_router import (
+    router as keycloak_populate_router,
+)
+from gast.problem_details import ProblemDetails
 from gast.repository.session_factory import engine
 from gast.router import health_router, hello_router
+from gast.security import (
+    AuthorizationError,
+    LoginError,
+    router as auth_router,
+    set_response_headers,
+)
+from gast.service import (
+    EmailExistsError,
+    NotFoundError,
+    UsernameExistsError,
+    VersionOutdatedError,
+)
 
-__all__: list[str] = []
+__all__ = [
+    "authorization_error_handler",
+    "email_exists_error_handler",
+    "login_error_handler",
+    "not_found_error_handler",
+    "username_exists_error_handler",
+    "version_outdated_error_handler",
+]
 
 
 # --------------------------------------------------------------------------------------
@@ -29,9 +53,11 @@ __all__: list[str] = []
 # pylint: disable=redefined-outer-name
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    """DB neu laden, falls im dev-Modus, sowie Banner in der Konsole."""
+    """DB und Keycloak neu laden, falls im dev-Modus, sowie Banner in der Konsole."""
     if dev_db_populate:
         db_populate()
+    if dev_keycloak_populate:
+        keycloak_populate()
     banner(app.routes)
     try:
         yield
@@ -91,5 +117,123 @@ async def log_response_time(
 # --------------------------------------------------------------------------------------
 # R E S T
 # --------------------------------------------------------------------------------------
+app.include_router(auth_router, prefix="/auth")
 app.include_router(health_router, prefix="/health")
 app.include_router(hello_router, prefix="/hello")
+
+if dev_keycloak_populate:
+    app.include_router(keycloak_populate_router, prefix="/dev")
+
+
+# --------------------------------------------------------------------------------------
+# S e c u r i t y
+# --------------------------------------------------------------------------------------
+# https://fastapi.tiangolo.com/tutorial/middleware
+@app.middleware("http")
+async def add_security_headers(
+    request: Request,
+    call_next: Callable[[Any], Awaitable[Response]],
+) -> Response:
+    """Header-Daten beim Response für IT-Sicherheit setzen.
+
+    :param request: Injiziertes Request-Objekt, das zunächst fertig verarbeitet wird
+    :param call_next: nächste aufzurufende Middleware
+    :return: Response-Objekt mit zusätzlichen Header-Daten
+    :rtype: Response
+    """
+    response: Final[Response] = await call_next(request)
+    set_response_headers(response)
+    return response
+
+
+# --------------------------------------------------------------------------------------
+# E x c e p t i o n   H a n d l e r
+# --------------------------------------------------------------------------------------
+@app.exception_handler(NotFoundError)
+def not_found_error_handler(_request: Request, _err: NotFoundError) -> Response:
+    """Errorhandler für NotFoundError.
+
+    :param _err: NotFoundError aus der Geschäftslogik
+    :return: Response mit Statuscode 404
+    :rtype: Response
+    """
+    return ProblemDetails.create(status_code=status.HTTP_404_NOT_FOUND).to_response()
+
+
+@app.exception_handler(AuthorizationError)
+def authorization_error_handler(
+    _request: Request,
+    _err: AuthorizationError,
+) -> Response:
+    """Errorhandler für AuthorizationError.
+
+    :param _err: AuthorizationError vom Extrahieren der Benutzerkennung aus dem
+        Authorization-Header
+    :return: Response mit Statuscode 401
+    :rtype: Response
+    """
+    return ProblemDetails.create(status_code=status.HTTP_401_UNAUTHORIZED).to_response()
+
+
+@app.exception_handler(LoginError)
+# pylint: disable-next=invalid-name
+def login_error_handler(_request: Request, err: LoginError) -> Response:
+    """Exception-Handler, wenn der Benutzername oder das Passwort fehlerhaft ist.
+
+    :param _exc: LoginError
+    :return: Response-Objekt mit Statuscode 401
+    :rtype: Response
+    """
+    return ProblemDetails.create(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=str(err),
+    ).to_response()
+
+
+@app.exception_handler(EmailExistsError)
+def email_exists_error_handler(_request: Request, err: EmailExistsError) -> Response:
+    """Exception-Handling für EmailExistsError.
+
+    :param err: Exception, falls die Emailadresse des neuen oder zu ändernden Gastes
+        bereits existiert
+    :return: Response mit Statuscode 422
+    :rtype: Response
+    """
+    return ProblemDetails.create(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail=str(err),
+    ).to_response()
+
+
+@app.exception_handler(UsernameExistsError)
+def username_exists_error_handler(
+    _request: Request,
+    err: UsernameExistsError,
+) -> Response:
+    """Exception-Handling für UsernameExistsError.
+
+    :param err: Exception, falls der Username für den neuen Gast bereits existiert
+    :return: Response mit Statuscode 422
+    :rtype: Response
+    """
+    return ProblemDetails.create(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail=str(err),
+    ).to_response()
+
+
+@app.exception_handler(VersionOutdatedError)
+def version_outdated_error_handler(
+    _request: Request,
+    err: VersionOutdatedError,
+) -> Response:
+    """Exception-Handling für VersionOutdatedError.
+
+    :param _err: Exception, falls die Versionsnummer zum Aktualisieren veraltet ist
+    :return: Response mit Statuscode 412
+    :rtype: Response
+    """
+    return ProblemDetails.create(
+        status_code=status.HTTP_412_PRECONDITION_FAILED,
+        detail=str(err),
+    ).to_response()
