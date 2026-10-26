@@ -19,7 +19,7 @@ _READ_ROLES: Final = [Role.ADMIN, Role.GAST]
 
 
 @gast_router.get(
-    path="/",
+    path="",
     dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
 def get(
@@ -43,7 +43,7 @@ def get(
 
 
 @gast_router.get(
-    path="/nachnamen",
+    path="/nachnamen/{teil}",
     dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
 def get_nachnamen(

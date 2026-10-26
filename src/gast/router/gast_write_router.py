@@ -22,7 +22,7 @@ _WRITE_ROLES: Final = [Role.ADMIN, Role.GAST]
 
 
 @gast_write_router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
 )
 def post(
@@ -38,7 +38,7 @@ def post(
     :return: 201 mit Location-Header
     """
     erzeugt = write_service.create(gast=gast_model.to_entity())
-    location = f"{request.url}{erzeugt.id}"
+    location = f"{request.url}/{erzeugt.id}"
     logger.debug("location={}", location)
     return Response(
         status_code=status.HTTP_201_CREATED,
