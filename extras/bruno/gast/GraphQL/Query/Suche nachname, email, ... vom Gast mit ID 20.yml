@@ -1,0 +1,79 @@
+info:
+  name: Suche nachname, email, ... vom Gast mit ID 20
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  headers:
+    - name: ""
+      value: ""
+      disabled: true
+  body:
+    query: |-
+      query ($gastId: ID! = "20") {
+        gast(gastId: $gastId) {
+          id
+          version
+          nachname
+          email
+          treuestufe
+          hasNewsletter
+          geburtsdatum
+          homepage
+          adresse {
+            plz
+            ort
+          }
+          username
+        }
+      }
+    variables: |-
+      {
+        "gastId": "30"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/json
+    - expression: res.body.data.gast
+      operator: isJson
+    - expression: res.body.data.gast.version
+      operator: gte
+      value: "0"
+    - expression: res.body.data.gast.nachname
+      operator: isString
+    - expression: res.body.data.gast.nachname
+      operator: isNotEmpty
+    - expression: res.body.data.gast.email
+      operator: isString
+    - expression: res.body.data.gast.email
+      operator: isNotEmpty
+    - expression: res.body.data.gast.treuestufe
+      operator: gt
+      value: "0"
+    - expression: res.body.data.gast.hasNewsletter
+      operator: isBoolean
+    - expression: res.body.data.gast.geburtsdatum
+      operator: isString
+    - expression: res.body.data.gast.homepage
+      operator: isString
+    - expression: res.body.data.gast.adresse
+      operator: isJson
+    - expression: res.body.data.gast.username
+      operator: isString
+    - expression: res.body.data.gast.username
+      operator: isNotEmpty
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

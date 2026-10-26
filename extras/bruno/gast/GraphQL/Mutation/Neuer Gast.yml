@@ -1,0 +1,65 @@
+info:
+  name: Neuer Gast
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  headers:
+    - name: ""
+      value: ""
+      disabled: true
+  body:
+    query: |-
+      mutation {
+        create(
+          gastInput: {
+            vorname: "Vorname"
+            nachname: "Nachnamegraphql"
+            email: "testgraphql@test.graphql"
+            treuestufe: 9
+            hasNewsletter: true
+            geburtsdatum: "2022-02-02"
+            homepage: "https://test.graphql"
+            adresse: {
+              plz: "99999"
+              ort: "Testort"
+            }
+            buchungen: [{
+              betrag: "999.99"
+              waehrung: "EUR"
+              zimmerkategorie: DOPPELZIMMER
+              verpflegung: FRUEHSTUECK
+              zahlungsart: KREDITKARTE
+              anreise: "2026-01-10"
+              abreise: "2026-01-12"
+              anzahlGaeste: 2
+            }]
+            username: "testgraphql"
+          }
+        ) {
+          id
+        }
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/json
+    - expression: res.body.data
+      operator: isJson
+    - expression: res.body.data.create.id
+      operator: gte
+      value: "0"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

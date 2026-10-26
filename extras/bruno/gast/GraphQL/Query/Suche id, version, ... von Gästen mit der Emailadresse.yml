@@ -1,0 +1,80 @@
+info:
+  name: Suche id, version, ... von Gästen mit der Emailadresse
+  type: graphql
+  seq: 4
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  headers:
+    - name: ""
+      value: ""
+      disabled: true
+  body:
+    query: |-
+      query ($email: String = "alice@acme.com") {
+        gaeste(suchparameter: {email: $email}) {
+          id
+          version
+          nachname
+          treuestufe
+          hasNewsletter
+          geburtsdatum
+          homepage
+          adresse {
+            plz
+            ort
+          }
+          username
+        }
+      }
+    variables: |-
+      {
+        "email": "admin@acme.com"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/json
+    - expression: res.body.data.gaeste
+      operator: isArray
+    - expression: res.body.data.gaeste
+      operator: length
+      value: "1"
+    - expression: res.body.data.gaeste[0]
+      operator: isJson
+    - expression: res.body.data.gaeste[0].id
+      operator: gte
+      value: "0"
+    - expression: res.body.data.gaeste[0].version
+      operator: gte
+      value: "0"
+    - expression: res.body.data.gaeste[0].nachname
+      operator: isString
+    - expression: res.body.data.gaeste[0].nachname
+      operator: isNotEmpty
+    - expression: res.body.data.gaeste[0].treuestufe
+      operator: gte
+      value: "0"
+    - expression: res.body.data.gaeste[0].hasNewsletter
+      operator: isBoolean
+    - expression: res.body.data.gaeste[0].homepage
+      operator: isString
+    - expression: res.body.data.gaeste[0].adresse
+      operator: isJson
+    - expression: res.body.data.gaeste[0].username
+      operator: isString
+    - expression: res.body.data.gaeste[0].username
+      operator: isNotEmpty
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

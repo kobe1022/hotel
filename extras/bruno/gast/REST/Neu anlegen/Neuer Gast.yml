@@ -1,0 +1,61 @@
+info:
+  name: Neuer Gast
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{restUrl}}"
+  headers:
+    - name: ""
+      value: ""
+      disabled: true
+  body:
+    type: json
+    data: |-
+      {
+          "vorname": "Vornamenachnamerest",
+          "nachname": "Nachnamerest",
+          "email": "testrest@test.rest",
+          "treuestufe": 1,
+          "has_newsletter": true,
+          "geburtsdatum": "2022-02-01",
+          "homepage": "https://test.rest",
+          "adresse": {
+              "plz": "99999",
+              "ort": "Restort"
+          },
+          "buchungen": [
+              {
+                  "betrag": "999.99",
+                  "waehrung": "EUR",
+                  "zimmerkategorie": "DZ",
+                  "verpflegung": "F",
+                  "zahlungsart": "K",
+                  "anreise": "2026-01-10",
+                  "abreise": "2026-01-12",
+                  "anzahl_gaeste": 2
+              }
+          ],
+          "username": "testrest"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.headers.location
+      operator: matches
+      value: \/rest\/[1-9]\d*$
+    - expression: res.body
+      operator: isString
+    - expression: res.body
+      operator: isEmpty
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
