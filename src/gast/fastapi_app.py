@@ -39,6 +39,7 @@ from gast.security import (
 )
 from gast.service import (
     EmailExistsError,
+    ForbiddenError,
     NotFoundError,
     UsernameExistsError,
     VersionOutdatedError,
@@ -47,6 +48,7 @@ from gast.service import (
 __all__ = [
     "authorization_error_handler",
     "email_exists_error_handler",
+    "forbidden_error_handler",
     "login_error_handler",
     "not_found_error_handler",
     "username_exists_error_handler",
@@ -181,6 +183,17 @@ def not_found_error_handler(_request: Request, _err: NotFoundError) -> Response:
     :rtype: Response
     """
     return ProblemDetails.create(status_code=status.HTTP_404_NOT_FOUND).to_response()
+
+
+@app.exception_handler(ForbiddenError)
+def forbidden_error_handler(_request: Request, _err: ForbiddenError) -> Response:
+    """Errorhandler für ForbiddenError.
+
+    :param _err: ForbiddenError vom Überprüfen der Zugriffsberechtigung
+    :return: Response mit Statuscode 403
+    :rtype: Response
+    """
+    return ProblemDetails.create(status_code=status.HTTP_403_FORBIDDEN).to_response()
 
 
 @app.exception_handler(AuthorizationError)

@@ -5,7 +5,8 @@ lazy from collections.abc import Sequence
 
 from gast.repository import Session
 from gast.repository.slice import Slice
-from gast.service.exceptions import NotFoundError
+from gast.security import Role, User
+from gast.service.exceptions import ForbiddenError, NotFoundError
 from gast.service.gast_dto import GastDTO
 lazy from gast.repository.gast_repository import GastRepository
 lazy from gast.repository.gast_suchparameter import GastSuchparameter
@@ -21,18 +22,28 @@ class GastService:
         """Konstruktor mit abhängigem GastRepository."""
         self._repository: Final = repo
 
-    def find_by_id(self, gast_id: int) -> GastDTO:
+    def find_by_id(self, gast_id: int, user: User) -> GastDTO:
         """Suche mit der Gast-ID.
 
         :param gast_id: ID des gesuchten Gastes
+        :param user: User aus dem Token
         :return: GastDTO zum gefundenen Gast
         :rtype: GastDTO
         :raises NotFoundError: falls kein Gast mit der ID existiert
+        :raises ForbiddenError: falls die Gastdaten nicht gelesen werden dürfen
         """
         with Session() as session:
+            user_is_admin: Final = Role.ADMIN in user.roles
+
             gast = self._repository.find_by_id(gast_id=gast_id, session=session)
             if gast is None:
-                raise NotFoundError(gast_id)
+                if user_is_admin:
+                    raise NotFoundError(gast_id)
+                raise ForbiddenError
+
+            if gast.username != user.username and not user_is_admin:
+                raise ForbiddenError
+
             return GastDTO.from_entity(gast)
 
     def find(

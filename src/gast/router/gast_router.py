@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query, Request, Response, status
 from gast.router.constants import ETAG, IF_NONE_MATCH, IF_NONE_MATCH_MIN_LEN
 from gast.router.dependencies import get_gast_service
 from gast.router.gast_find_model import GastFindModel
-from gast.security import Role, RolesRequired
+from gast.security import Role, RolesRequired, User
 from gast.service import GastDTO, GastService
 
 __all__ = ["router"]
@@ -20,7 +20,7 @@ _READ_ROLES: Final = [Role.ADMIN, Role.GAST]
 
 @router.get(
     path="/",
-    dependencies=[Depends(RolesRequired(_READ_ROLES))],
+    dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
 def find(
     suchparameter: Annotated[GastFindModel, Query()],
@@ -44,7 +44,7 @@ def find(
 
 @router.get(
     path="/nachnamen",
-    dependencies=[Depends(RolesRequired(_READ_ROLES))],
+    dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
 def find_nachnamen(
     teil: str,
@@ -76,9 +76,11 @@ def get_by_id(
     :param request: Request-Objekt, um den If-None-Match-Header auszuwerten
     :param response: Response-Objekt, um den ETag-Header zu setzen
     :param service: Injizierter GastService
-    :return: 200 mit Gastdaten und ETag, 304 falls unverändert, 404 falls nicht gefunden
+    :return: 200 mit Gastdaten und ETag, 304 falls unverändert
     """
-    gast_dto = service.find_by_id(gast_id=id)
+    # User-Objekt ist durch Depends(RolesRequired()) in Request.state gepuffert
+    user: Final[User] = request.state.current_user
+    gast_dto = service.find_by_id(gast_id=id, user=user)
 
     etag = f'"{gast_dto.version}"'
     if_none_match = request.headers.get(IF_NONE_MATCH)

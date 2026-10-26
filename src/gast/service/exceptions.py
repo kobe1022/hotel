@@ -25,6 +25,10 @@ class EmptyUsernameError(ValueError):
         super().__init__("username ist None oder leer")
 
 
+class ForbiddenError(Exception):
+    """Wird ausgelöst, wenn der Zugriff auf die Daten nicht erlaubt ist."""
+
+
 class NotFoundError(ValueError):
     """Wird ausgelöst, wenn kein Gast mit der gegebenen ID existiert."""
 
