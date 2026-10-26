@@ -1,6 +1,6 @@
 # Hinweise zu Keycloak als "Authorization Server"
 
-[Juergen Zimmermann](mailto:Juergen.Zimmermann@h-ka.de)
+Benjamin Köken und Aaron Stief
 
 ## Inhalt
 
@@ -259,13 +259,14 @@ benötigt.
 
 Im Wurzelverzeichnis des Projekts in der Datei `.env` muss man die
 Umgebungsvariable `CLIENT_SECRET` auf den Wert vom obigen _Client Secret_ aus
-_Keycloak_ setzen und ebenso in `extras\compose\buch\.env`:
+_Keycloak_ setzen.
 
-In der Klasse `AuthController` ist eine REST-Schnittstelle implementiert, mit
-der man durch einen POST-Request mit dem Pfad `/auth/token` einen _Access Token_
-und einen _Refresh Token_ direkt vom eigenen Server anfordern kann, falls im
+In der Datei `src\gast\security\auth_router.py` ist eine REST-Schnittstelle
+implementiert, mit der man durch einen QUERY-Request mit dem Pfad `/auth/token`
+einen _Access Token_ direkt vom eigenen Server anfordern kann, falls im
 Request-Body ein JSON-Datensatz mit den Properties `username` und `password`
-mitgeschickt wird.
+mitgeschickt wird. Die Antwort enthält die Properties `token`, `expires_in` und
+`rollen`.
 
 ## Bruno mit einem Access Token
 

@@ -30,8 +30,6 @@ log/
 .env
 sonar-project.properties
 extras/compose/**/db_password.txt
-src/hotelgast/config/resources/tls/key.pem
-src/hotelgast/config/resources/tls/private-key.pem
 
 # Sensible Daten
 src/gast/config/resources/tls/key.pem

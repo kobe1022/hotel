@@ -1,6 +1,6 @@
 # Hinweise zur Installation und Konfiguration von PostgreSQL
 
-[Jürgen Zimmermann](mailto:Juergen.Zimmermann@h-ka.de)
+Benjamin Köken und Aaron Stief
 
 ## Inhalt
 

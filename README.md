@@ -3,8 +3,8 @@
 REST- und GraphQL-Service für die Verwaltung von Hotelgästen mit FastAPI, SQLAlchemy,
 PostgreSQL, Keycloak und uv. Entstanden als Gruppenprojekt an der Hochschule Karlsruhe.
 
-Aufbau und Struktur orientieren sich am Beispielprojekt _Patient_ von
-Jürgen Zimmermann (Hochschule Karlsruhe, GPL-3.0).
+Aufbau und Struktur orientieren sich an einem Beispielprojekt aus der
+Lehrveranstaltung (Hochschule Karlsruhe, GPL-3.0).
 
 ## Status
 
