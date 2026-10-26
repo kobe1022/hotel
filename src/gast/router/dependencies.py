@@ -10,7 +10,7 @@ from gast.service.gast_service import GastService
 from gast.service.gast_write_service import GastWriteService
 lazy from gast.security.user_service import UserService
 
-__all__ = ["get_gast_service", "get_gast_write_service", "get_repository"]
+__all__ = ["get_service", "get_write_service", "get_repository"]
 
 
 def get_repository() -> GastRepository:
@@ -22,14 +22,14 @@ def get_repository() -> GastRepository:
     return GastRepository()
 
 
-def get_gast_service(
+def get_service(
     repo: Annotated[GastRepository, Depends(get_repository)],
 ) -> GastService:
     """Factory-Funktion für GastService."""
     return GastService(repo=repo)
 
 
-def get_gast_write_service(
+def get_write_service(
     repo: Annotated[GastRepository, Depends(get_repository)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> GastWriteService:

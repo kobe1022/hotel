@@ -7,28 +7,28 @@ from loguru import logger
 
 from gast.problem_details import ProblemDetails
 from gast.router.constants import IF_MATCH
-from gast.router.dependencies import get_gast_write_service
+from gast.router.dependencies import get_write_service
 from gast.router.gast_model import GastModel
 from gast.router.gast_update_model import GastUpdateModel
 from gast.security import Role, RolesRequired
 lazy from gast.service import GastWriteService
 
-__all__ = ["router"]
+__all__ = ["gast_write_router"]
 
 
-router: Final = APIRouter(tags=["Schreiben"])
+gast_write_router: Final = APIRouter(tags=["Schreiben"])
 
 _WRITE_ROLES: Final = [Role.ADMIN, Role.GAST]
 
 
-@router.post(
+@gast_write_router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
 )
-def create(
+def post(
     gast_model: GastModel,
     request: Request,
-    write_service: Annotated[GastWriteService, Depends(get_gast_write_service)],
+    write_service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
     """Einen neuen Gast anlegen.
 
@@ -46,20 +46,20 @@ def create(
     )
 
 
-@router.put(
-    path="/{id}",
+@gast_write_router.put(
+    path="/{gast_id}",
     dependencies=[Depends(RolesRequired(_WRITE_ROLES))],
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def update(
-    id: int,
+def put(
+    gast_id: int,
     gast_update_model: GastUpdateModel,
     request: Request,
-    write_service: Annotated[GastWriteService, Depends(get_gast_write_service)],
+    write_service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
     """Einen vorhandenen Gast aktualisieren (Optimistic Locking über If-Match).
 
-    :param id: Die ID des zu aktualisierenden Gastes
+    :param gast_id: Die ID des zu aktualisierenden Gastes
     :param gast_update_model: Die neuen Gastdaten aus dem Request-Body
     :param request: Request-Objekt, um den If-Match-Header auszuwerten
     :param write_service: Injizierter GastWriteService
@@ -81,26 +81,26 @@ def update(
 
     write_service.update(
         gast=gast_update_model.to_entity(),
-        gast_id=id,
+        gast_id=gast_id,
         version=int(version),
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.delete(
-    path="/{id}",
+@gast_write_router.delete(
+    path="/{gast_id}",
     dependencies=[Depends(RolesRequired(_WRITE_ROLES))],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_by_id(
-    id: int,
-    write_service: Annotated[GastWriteService, Depends(get_gast_write_service)],
+    gast_id: int,
+    write_service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
     """Einen Gast löschen.
 
-    :param id: Die ID des zu löschenden Gastes
+    :param gast_id: Die ID des zu löschenden Gastes
     :param write_service: Injizierter GastWriteService
     :return: 204, auch falls der Gast nicht (mehr) existiert
     """
-    write_service.delete_by_id(gast_id=id)
+    write_service.delete_by_id(gast_id=gast_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

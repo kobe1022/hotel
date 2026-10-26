@@ -5,27 +5,27 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 
 from gast.router.constants import ETAG, IF_NONE_MATCH, IF_NONE_MATCH_MIN_LEN
-from gast.router.dependencies import get_gast_service
+from gast.router.dependencies import get_service
 from gast.router.gast_find_model import GastFindModel
 from gast.security import Role, RolesRequired, User
 from gast.service import GastDTO, GastService
 
-__all__ = ["router"]
+__all__ = ["gast_router"]
 
 
-router: Final = APIRouter(tags=["Lesen"])
+gast_router: Final = APIRouter(tags=["Lesen"])
 
 _READ_ROLES: Final = [Role.ADMIN, Role.GAST]
 
 
-@router.get(
+@gast_router.get(
     path="/",
     dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
-def find(
+def get(
     suchparameter: Annotated[GastFindModel, Query()],
     response: Response,
-    service: Annotated[GastService, Depends(get_gast_service)],
+    service: Annotated[GastService, Depends(get_service)],
 ) -> list[GastDTO]:
     """Gäste anhand von Suchparametern mit Pagination suchen.
 
@@ -42,13 +42,13 @@ def find(
     return list(gast_slice.content)
 
 
-@router.get(
+@gast_router.get(
     path="/nachnamen",
     dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
-def find_nachnamen(
+def get_nachnamen(
     teil: str,
-    service: Annotated[GastService, Depends(get_gast_service)],
+    service: Annotated[GastService, Depends(get_service)],
 ) -> list[str]:
     """Nachnamen zu einem Teilstring suchen, z.B. für Autocomplete.
 
@@ -59,20 +59,20 @@ def find_nachnamen(
     return list(service.find_nachnamen(teil=teil))
 
 
-@router.get(
-    path="/{id}",
+@gast_router.get(
+    path="/{gast_id}",
     dependencies=[Depends(RolesRequired(_READ_ROLES))],
     response_model=GastDTO,
 )
 def get_by_id(
-    id: int,
+    gast_id: int,
     request: Request,
     response: Response,
-    service: Annotated[GastService, Depends(get_gast_service)],
+    service: Annotated[GastService, Depends(get_service)],
 ) -> GastDTO | Response:
     """Einen Gast anhand seiner ID suchen.
 
-    :param id: Die ID des gesuchten Gastes
+    :param gast_id: Die ID des gesuchten Gastes
     :param request: Request-Objekt, um den If-None-Match-Header auszuwerten
     :param response: Response-Objekt, um den ETag-Header zu setzen
     :param service: Injizierter GastService
@@ -80,7 +80,7 @@ def get_by_id(
     """
     # User-Objekt ist durch Depends(RolesRequired()) in Request.state gepuffert
     user: Final[User] = request.state.current_user
-    gast_dto = service.find_by_id(gast_id=id, user=user)
+    gast_dto = service.find_by_id(gast_id=gast_id, user=user)
 
     etag = f'"{gast_dto.version}"'
     if_none_match = request.headers.get(IF_NONE_MATCH)
