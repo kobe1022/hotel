@@ -6,6 +6,8 @@ from typing import Any, Final
 lazy from collections.abc import AsyncGenerator, Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import (
     GZipMiddleware,  # https://fastapi.tiangolo.com/advanced/middleware/#gzipmiddleware
 )
@@ -22,7 +24,13 @@ from gast.config.dev.keycloak_populate_router import (
 )
 from gast.problem_details import ProblemDetails
 from gast.repository.session_factory import engine
-from gast.router import health_router, hello_router
+from gast.router import (
+    gast_router,
+    gast_write_router,
+    health_router,
+    hello_router,
+    shutdown_router,
+)
 from gast.security import (
     AuthorizationError,
     LoginError,
@@ -114,12 +122,27 @@ async def log_response_time(
     return response
 
 
+@app.exception_handler(RequestValidationError)
+def handle_validation_error(
+    _request: Request,
+    exc: RequestValidationError,
+) -> Response:
+    """Pydantic-Validierungsfehler als ProblemDetails gemäß RFC 7807 ausliefern."""
+    return ProblemDetails.create(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail=jsonable_encoder(exc.errors()),
+    ).to_response()
+
+
 # --------------------------------------------------------------------------------------
 # R E S T
 # --------------------------------------------------------------------------------------
 app.include_router(auth_router, prefix="/auth")
 app.include_router(health_router, prefix="/health")
 app.include_router(hello_router, prefix="/hello")
+app.include_router(gast_router, prefix="/rest")
+app.include_router(gast_write_router, prefix="/rest")
+app.include_router(shutdown_router, prefix="/shutdown")
 
 if dev_keycloak_populate:
     app.include_router(keycloak_populate_router, prefix="/dev")

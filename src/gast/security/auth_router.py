@@ -9,7 +9,7 @@ from loguru import logger
 
 from gast.security.dependencies import get_token_service
 from gast.security.login_data import LoginData
-from gast.security.token_service import TokenService
+lazy from gast.security.token_service import TokenService
 
 __all__ = ["router"]
 

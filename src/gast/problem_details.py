@@ -39,6 +39,8 @@ class ProblemDetails:
                 return cls(title="Unauthorized", status_code=status_code, detail=detail)
             case 403:
                 return cls(title="Forbidden", status_code=status_code, detail=detail)
+            case 404:
+                return cls(title="Not Found", status_code=status_code, detail=detail)
             case 412:
                 return cls(
                     title="Precondition Failed",
