@@ -1,8 +1,9 @@
 """Pydantic-Modell für Gastdaten im Request-Body bei POST."""
 
 from datetime import date
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints
 
 from gast.entity import Gast
 from gast.router.adresse_model import AdresseModel
@@ -23,8 +24,8 @@ class GastModel(BaseModel):
     has_newsletter: bool
     geburtsdatum: date
     homepage: str | None = None
-    username: str | None = None
-    adresse: AdresseModel | None = None
+    username: Annotated[str, StringConstraints(max_length=20)]
+    adresse: AdresseModel
     buchungen: list[BuchungModel] = Field(default_factory=list)
 
     def to_entity(self) -> Gast:
@@ -39,7 +40,7 @@ class GastModel(BaseModel):
             homepage=self.homepage,
             username=self.username,
             id=None,
-            adresse=self.adresse.to_entity() if self.adresse is not None else None,
+            adresse=self.adresse.to_entity(),
             buchungen=[buchung.to_entity() for buchung in self.buchungen],
             erzeugt=None,
             aktualisiert=None,
