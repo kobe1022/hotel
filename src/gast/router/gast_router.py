@@ -98,6 +98,34 @@ def get(
     return result
 
 
+# TODO https://github.com/fastapi/fastapi/issues/12965
+@gast_router.api_route(
+    path="/query",
+    methods=["QUERY"],
+    dependencies=[Depends(RolesRequired(Role.ADMIN))],
+    response_model=GastPageModel,
+)
+def query(
+    find_model: GastFindModel,
+    service: Annotated[GastService, Depends(get_service)],
+) -> GastPageModel:
+    """Suche mit HTTP-Methode _QUERY_.
+
+    **BEACHTE**: HTTP-Methode QUERY ist in FastAPI noch nicht "nativ" implementiert
+    https://github.com/fastapi/fastapi/issues/12965 und
+    https://www.rfc-editor.org/info/rfc10008
+    :param find_model: Validierte Suchparameter (einschließlich Pagination) als
+    Pydantic-Model aus dem Request-Body
+    :param service: Injizierter Service für Geschäftslogik
+    :return: Eine Seite mit Gast-Daten
+    :raises NotFoundError: Falls keine Gäste gefunden wurden
+    """
+    logger.debug("search={}", find_model)
+    result: Final = _find_page(service=service, find_model=find_model)
+    logger.debug("result={}", result)
+    return result
+
+
 @gast_router.get(
     path="/nachnamen/{teil}",
     dependencies=[Depends(RolesRequired(Role.ADMIN))],

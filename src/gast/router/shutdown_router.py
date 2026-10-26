@@ -1,28 +1,35 @@
-"""REST-Schnittstelle zum kontrollierten Herunterfahren des Servers."""
+"""REST-Schnittstelle für Shutdown."""
 
-from os import getpid, kill
-from signal import SIGTERM
-from typing import Final
+import os
+import signal
+from typing import Any, Final
 
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from gast.security import Role, RolesRequired
+from gast.security.role import Role
+from gast.security.roles_required import RolesRequired
 
 __all__ = ["router"]
+
 
 router: Final = APIRouter(tags=["Admin"])
 
 
-@router.post(
-    path="/",
+# "Dependency Injection" durch Depends
+@router.api_route(
+    path="/shutdown",
+    methods=["QUERY"],
     dependencies=[Depends(RolesRequired(Role.ADMIN))],
 )
-def shutdown() -> dict[str, str]:
-    """Den Server kontrolliert herunterfahren (nur für Admins).
-
-    :return: JSON-Datensatz mit Statusmeldung, bevor der Prozess sich beendet
-    """
-    logger.warning("Shutdown wurde angefordert")
-    kill(getpid(), SIGTERM)
-    return {"status": "shutting down"}
+def shutdown() -> dict[str, Any]:
+    """Der Server wird heruntergefahren."""
+    logger.warning("Server shutting down without calling cleanup handlers.")
+    # https://stackoverflow.com/questions/15562446/how-to-stop-flask-application-without-using-ctrl-c#answer-69812984
+    # https://github.com/pallets/werkzeug/issues/1752
+    # https://docs.python.org/3/library/os.html#os._exit
+    # https://docs.python.org/3/library/sys.html#sys.exit
+    # sys.exit(0)  # NOSONAR
+    # os._exit(0)
+    os.kill(os.getpid(), signal.SIGINT)  # NOSONAR
+    return {"message": "Server is shutting down..."}

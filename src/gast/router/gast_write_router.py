@@ -1,4 +1,4 @@
-"""REST-Schnittstelle für schreibende Zugriffe auf Gastdaten."""
+"""GastWriteRouter."""
 
 from typing import Annotated, Final
 
@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends, Request, Response, status
 from loguru import logger
 
 from gast.problem_details import ProblemDetails
-from gast.router.constants import IF_MATCH
+from gast.router.constants import IF_MATCH, IF_MATCH_MIN_LEN
 from gast.router.dependencies import get_write_service
-from gast.router.gast_model import GastModel
-from gast.router.gast_update_model import GastUpdateModel
 from gast.security import Role, RolesRequired
+lazy from gast.router.gast_model import GastModel
+lazy from gast.router.gast_update_model import GastUpdateModel
 lazy from gast.service import GastWriteService
 
 __all__ = ["gast_write_router"]
@@ -18,89 +18,118 @@ __all__ = ["gast_write_router"]
 
 gast_write_router: Final = APIRouter(tags=["Schreiben"])
 
-_WRITE_ROLES: Final = [Role.ADMIN, Role.GAST]
 
-
-@gast_write_router.post(
-    path="",
-    status_code=status.HTTP_201_CREATED,
-)
+@gast_write_router.post("")
 def post(
     gast_model: GastModel,
     request: Request,
-    write_service: Annotated[GastWriteService, Depends(get_write_service)],
+    service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
-    """Einen neuen Gast anlegen.
+    """POST-Request, um einen neuen Gast anzulegen.
 
-    :param gast_model: Die Gastdaten aus dem Request-Body
-    :param request: Request-Objekt, um die Location-URL zusammenzubauen
-    :param write_service: Injizierter GastWriteService
-    :return: 201 mit Location-Header
+    :param gast_model: Gastdaten als Pydantic-Model
+    :param request: Injiziertes Request-Objekt von FastAPI bzw. Starlette
+        mit der Request-URL
+    :param service: Injizierter Service für Geschäftslogik
+    :rtype: Response
+    :raises ValidationError: Falls es bei Pydantic Validierungsfehler gibt
+    :raises EmailExistsError: Falls die Emailadresse bereits existiert
+    :raises UsernameExistsError: Falls der Benutzername bereits existiert
     """
-    erzeugt = write_service.create(gast=gast_model.to_gast())
-    location = f"{request.url}/{erzeugt.id}"
-    logger.debug("location={}", location)
+    logger.debug("gast_model={}", gast_model)
+    gast_dto: Final = service.create(
+        gast=gast_model.to_gast(),
+    )
+    logger.debug("gast_dto={}", gast_dto)
+
     return Response(
         status_code=status.HTTP_201_CREATED,
-        headers={"Location": location},
+        headers={"Location": f"{request.url}/{gast_dto.id}"},
     )
 
 
 @gast_write_router.put(
-    path="/{gast_id}",
-    dependencies=[Depends(RolesRequired(_WRITE_ROLES))],
-    status_code=status.HTTP_204_NO_CONTENT,
+    "/{gast_id}",
+    dependencies=[Depends(RolesRequired([Role.ADMIN, Role.GAST]))],
 )
 def put(
     gast_id: int,
     gast_update_model: GastUpdateModel,
     request: Request,
-    write_service: Annotated[GastWriteService, Depends(get_write_service)],
+    service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
-    """Einen vorhandenen Gast aktualisieren (Optimistic Locking über If-Match).
+    """PUT-Request, um einen Gast zu aktualisieren.
 
-    :param gast_id: Die ID des zu aktualisierenden Gastes
-    :param gast_update_model: Die neuen Gastdaten aus dem Request-Body
-    :param request: Request-Objekt, um den If-Match-Header auszuwerten
-    :param write_service: Injizierter GastWriteService
-    :return: 204 bei Erfolg, 412/428 bei fehlerhaftem If-Match-Header
+    :param gast_id: ID des zu aktualisierenden Gastes als Pfadparameter
+    :param request: Injiziertes Request-Objekt von FastAPI bzw. Starlette
+        mit If-Match im Header
+    :param service: Injizierter Service für Geschäftslogik
+    :return: Response mit Statuscode 204
+    :rtype: Response
+    :raises ValidationError: Falls es bei Pydantic Validierungsfehler gibt
+    :raises EmailExistsError: Falls die neue Emailadresse bereits
+    :raises NotFoundError: Falls zur id kein Gast existiert
+    :raises VersionOutdatedError: Falls die Versionsnummer nicht aktuell ist
     """
-    if_match = request.headers.get(IF_MATCH)
-    if if_match is None:
+    if_match_value: Final = request.headers.get(IF_MATCH)
+    logger.debug(
+        "gast_id={}, if_match={}, gast_update_model={}",
+        gast_id,
+        if_match_value,
+        gast_update_model,
+    )
+
+    if if_match_value is None:
         return ProblemDetails.create(
             status_code=status.HTTP_428_PRECONDITION_REQUIRED,
-            detail="Der Header 'If-Match' fehlt.",
         ).to_response()
 
-    version = if_match.replace('"', "")
-    if not version.isdigit():
+    if (
+        len(if_match_value) < IF_MATCH_MIN_LEN
+        or not if_match_value.startswith('"')
+        or not if_match_value.endswith('"')
+    ):
         return ProblemDetails.create(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail="Der Header 'If-Match' ist ungueltig.",
         ).to_response()
 
-    write_service.update(
-        gast=gast_update_model.to_gast(),
+    version: Final = if_match_value[1:-1]
+    try:
+        version_int: Final = int(version)
+    except ValueError:
+        return ProblemDetails.create(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+        ).to_response()
+
+    gast: Final = gast_update_model.to_gast()
+    gast_modified: Final = service.update(
+        gast=gast,
         gast_id=gast_id,
-        version=int(version),
+        version=version_int,
     )
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    logger.debug("gast_modified={}", gast_modified)
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT,
+        headers={"ETag": f'"{gast_modified.version}"'},
+    )
 
 
 @gast_write_router.delete(
-    path="/{gast_id}",
-    dependencies=[Depends(RolesRequired(_WRITE_ROLES))],
-    status_code=status.HTTP_204_NO_CONTENT,
+    "/{gast_id}",
+    dependencies=[Depends(RolesRequired([Role.ADMIN, Role.GAST]))],
 )
 def delete_by_id(
     gast_id: int,
-    write_service: Annotated[GastWriteService, Depends(get_write_service)],
+    service: Annotated[GastWriteService, Depends(get_write_service)],
 ) -> Response:
-    """Einen Gast löschen.
+    """DELETE-Request, um einen Gast anhand seiner ID zu löschen.
 
-    :param gast_id: Die ID des zu löschenden Gastes
-    :param write_service: Injizierter GastWriteService
-    :return: 204, auch falls der Gast nicht (mehr) existiert
+    :param gast_id: ID des zu löschenden Gastes
+    :param service: Injizierter Service für Geschäftslogik
+    :return: Response mit Statuscode 204
+    :rtype: Response
     """
-    write_service.delete_by_id(gast_id=gast_id)
+    logger.debug("gast_id={}", gast_id)
+    service.delete_by_id(gast_id=gast_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

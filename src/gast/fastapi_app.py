@@ -1,6 +1,7 @@
 """MainApp."""
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from time import time
 from typing import Any, Final
 lazy from collections.abc import AsyncGenerator, Awaitable, Callable
@@ -11,9 +12,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import (
     GZipMiddleware,  # https://fastapi.tiangolo.com/advanced/middleware/#gzipmiddleware
 )
+from fastapi.responses import FileResponse, HTMLResponse
 from loguru import logger
+from prometheus_fastapi_instrumentator import Instrumentator
 from pyinstrument import Profiler
-lazy from fastapi.responses import HTMLResponse
 
 from gast.banner import banner
 from gast.config import dev_db_populate, dev_keycloak_populate, profiling
@@ -79,6 +81,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 app: Final = FastAPI(lifespan=lifespan)
 
+# FastAPI-App fuer Metriken fuer Prometheus instrumentieren: Endpunkt /metrics
+Instrumentator().instrument(app).expose(app)
+
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 
@@ -139,12 +144,12 @@ def handle_validation_error(
 # --------------------------------------------------------------------------------------
 # R E S T
 # --------------------------------------------------------------------------------------
-app.include_router(auth_router, prefix="/auth")
-app.include_router(health_router, prefix="/health")
-app.include_router(hello_router, prefix="/hello")
 app.include_router(gast_router, prefix="/rest")
 app.include_router(gast_write_router, prefix="/rest")
-app.include_router(shutdown_router, prefix="/shutdown")
+app.include_router(auth_router, prefix="/auth")
+app.include_router(health_router, prefix="/health")
+app.include_router(shutdown_router, prefix="/admin")
+app.include_router(hello_router, prefix="/hello")
 
 if dev_keycloak_populate:
     app.include_router(keycloak_populate_router, prefix="/dev")
@@ -169,6 +174,27 @@ async def add_security_headers(
     response: Final[Response] = await call_next(request)
     set_response_headers(response)
     return response
+
+
+# --------------------------------------------------------------------------------------
+# F a v i c o n
+# --------------------------------------------------------------------------------------
+@app.get("/favicon.ico")
+def favicon() -> FileResponse:
+    """facicon.ico ermitteln.
+
+    :return: Response-Objekt mit favicon.ico
+    :rtype: FileResponse
+    """
+    src_path: Final = Path("src")
+    file_name: Final = "favicon.ico"
+    favicon_path: Final = Path("gast") / "static" / file_name
+    file_path: Final = src_path / favicon_path if src_path.is_dir() else favicon_path
+    logger.debug("file_path={}", file_path)
+    return FileResponse(
+        path=file_path,
+        headers={"Content-Disposition": f"attachment; filename={file_name}"},
+    )
 
 
 # --------------------------------------------------------------------------------------
