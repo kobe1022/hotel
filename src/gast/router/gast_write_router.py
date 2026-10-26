@@ -103,9 +103,9 @@ def put(
     try:
         version_int: Final = int(version)
     except ValueError:
-        return ProblemDetails.create(
+        return Response(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
-        ).to_response()
+        )
 
     gast: Final = gast_update_model.to_gast()
     gast_modified: Final = service.update(
