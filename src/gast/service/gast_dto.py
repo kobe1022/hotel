@@ -25,7 +25,7 @@ class GastDTO:
     geburtsdatum: date
     homepage: str | None
     username: str | None
-    adresse: AdresseDTO | None
+    adresse: AdresseDTO
 
     @classmethod
     def from_entity(cls, gast: Gast) -> GastDTO:
@@ -43,5 +43,5 @@ class GastDTO:
             geburtsdatum=gast.geburtsdatum,
             homepage=gast.homepage,
             username=gast.username,
-            adresse=AdresseDTO.from_entity(gast.adresse) if gast.adresse else None,
+            adresse=AdresseDTO.from_entity(gast.adresse),
         )

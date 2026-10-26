@@ -17,9 +17,9 @@ class AdresseDTO:
     ort: str
 
     @classmethod
-    def from_entity(cls, adresse: Adresse) -> AdresseDTO:
+    def from_entity(cls, adresse: Adresse | None) -> AdresseDTO:
         """Create an AdresseDTO from an Adresse entity."""
-        if not adresse:
+        if adresse is None:
             raise AdresseRequiredError
         return cls(
             plz=adresse.plz,
