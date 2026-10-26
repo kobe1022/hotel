@@ -23,7 +23,6 @@ _WRITE_ROLES: Final = [Role.ADMIN, Role.GAST]
 
 @router.post(
     path="/",
-    dependencies=[Depends(RolesRequired(_WRITE_ROLES))],
     status_code=status.HTTP_201_CREATED,
 )
 def create(
