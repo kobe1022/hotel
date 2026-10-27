@@ -19,9 +19,9 @@ runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "400"
+      value: "422"
     - expression: res.body
-      operator: isEmpty
+      operator: isJson
 
 settings:
   encodeUrl: true

@@ -52,7 +52,7 @@ runtime:
       value: "422"
     - expression: res.headers['content-type']
       operator: eq
-      value: application/json
+      value: application/problem+json
     - expression: res.body.detail
       operator: isArray
     - expression: res.body.detail

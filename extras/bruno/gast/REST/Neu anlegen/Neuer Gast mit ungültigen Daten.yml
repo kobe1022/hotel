@@ -38,7 +38,7 @@ runtime:
       code: |-
         test('Fehlermeldungen im Response Body', () => {
             const body = res.getBody();
-            const props = ['nachname', 'email', 'treuestufe', 'homepage', 'geschlecht', 'familienstand', 'adresse'];
+            const props = ['nachname', 'email', 'treuestufe', 'homepage', 'adresse'];
 
             // FastAPI
             if (Object.keys(body).length === 1 && Array.isArray(body.detail)) {
@@ -62,7 +62,7 @@ runtime:
       value: "422"
     - expression: res.headers['content-type']
       operator: eq
-      value: application/json
+      value: application/problem+json
     - expression: res.body.detail
       operator: isArray
     - expression: res.body.detail

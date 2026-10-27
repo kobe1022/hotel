@@ -49,7 +49,7 @@ runtime:
     - type: tests
       code: |-
         test('Fehlermeldungen in "validation_errors"', () => {
-            const props = ['nachname', 'email', 'homepage', 'geschlecht', 'plz', 'waehrung'];
+            const props = ['nachname', 'email', 'homepage', 'plz', 'waehrung'];
           
             res.getBody()
                 .errors[0]
@@ -87,7 +87,7 @@ runtime:
       value: adresse
     - expression: res.body.errors[0].message
       operator: contains
-      value: rechnungen
+      value: buchungen
     - expression: res.body.errors[0].path
       operator: isArray
     - expression: res.body.errors[0].path

@@ -22,7 +22,7 @@ request:
         const password = bru.getEnvVar('password');
 
         const response = await bru.sendRequest({
-          method: 'POST',
+          method: 'QUERY',
           url: tokenUrl,
           data: { username, password },
           httpsAgent,

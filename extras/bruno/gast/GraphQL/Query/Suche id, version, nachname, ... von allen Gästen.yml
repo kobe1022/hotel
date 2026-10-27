@@ -40,7 +40,7 @@ runtime:
             .data
             .gaeste
             .forEach(gast => {
-              const { id, version, nachname, email, treuestufe, hasNewsletter, geburtsdatum, homepage, geschlecht, familienstand, adresse, fachaerzte, username } = gast;
+              const { id, version, nachname, email, treuestufe, hasNewsletter, geburtsdatum, homepage, adresse, username } = gast;
               expect(id).to.be.gte(0);
               expect(version).to.be.gte(0);
               expect(nachname).to.be.a('string').that.is.not.empty;
@@ -49,10 +49,7 @@ runtime:
               expect(hasNewsletter).to.be.a('boolean');
               expect(geburtsdatum).to.be.a('string');
               expect(homepage).to.be.a('string');
-              expect(geschlecht).to.be.a('string');
-              expect(familienstand).to.be.a('string');
               expect(adresse).to.be.an('object').that.is.not.empty;
-              expect(fachaerzte).to.be.an('array');
               expect(username).to.be.a('string').that.is.not.empty;
             });
         });

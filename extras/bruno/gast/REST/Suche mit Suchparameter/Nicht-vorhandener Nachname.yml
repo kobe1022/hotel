@@ -5,12 +5,12 @@ info:
 
 http:
   method: GET
-  url: "{{restUrl}}?Nachname=Xxx"
+  url: "{{restUrl}}?nachname=Xxx"
   headers:
     - name: Accept
       value: application/json
   params:
-    - name: Nachname
+    - name: nachname
       value: Xxx
       type: query
   auth: inherit
