@@ -11,9 +11,10 @@ Lehrveranstaltung (Hochschule Karlsruhe, GPL-3.0).
 In Arbeit. Das Projekt wird schrittweise aufgebaut (siehe Issues bzw. Project Board).
 
 Bereits vorhanden sind: Server mit TLS, Konfiguration, Entities, Repository,
-PostgreSQL-Anbindung, Service-Schicht, Zugriffsschutz mit Keycloak und das Neuladen
-von Datenbank und Keycloak im Entwicklungsmodus. Noch offen sind u.a. die
-REST-Schnittstelle für Gäste, GraphQL, Mailing und die Tests.
+PostgreSQL-Anbindung, Service-Schicht, REST- und GraphQL-Schnittstelle, Zugriffsschutz
+mit Keycloak, Neuladen von Datenbank und Keycloak im Entwicklungsmodus, E-Mail-Versand
+(Mailpit), Excel-Export, Tests, Lasttest (Locust) und eine Bruno-Collection.
+Noch offen sind u.a. Docker-Image mit CI, Dokumentation (mkdocs) und Abschlussarbeiten.
 
 ## Autoren
 
@@ -58,7 +59,8 @@ gestartet sein. Zur Konfiguration gibt es im jeweiligen Unterverzeichnis eine
 - PostgreSQL: `extras\compose\postgres\ReadMe.md`
 - Keycloak: `extras\compose\keycloak\ReadMe.md`
 
-Ein Mailserver ist noch nicht eingerichtet.
+Für den E-Mail-Versand beim Anlegen eines Gastes gibt es _Mailpit_, siehe
+`extras\compose\mailpit\ReadMe.md`.
 
 Wenn die Backend-Server eingerichtet sind, kann man sie mit _Docker Compose_ starten.
 Die Compose-Datei für _Keycloak_ bindet die für _PostgreSQL_ ein (`include`), sodass
