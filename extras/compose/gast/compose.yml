@@ -1,0 +1,55 @@
+# Aufruf:   docker compose up
+#               ggf. --build
+#           docker compose down
+
+# https://github.com/compose-spec/compose-spec/blob/master/schema/compose-spec.json
+
+---
+include:
+  # bindet transitiv auch ../postgres/compose.yml ein
+  - path: ../keycloak/compose.yml
+  - path: ../mailpit/compose.yml
+
+services:
+  gast:
+    build:
+      context: ../../..
+      # alternativ: Dockerfile.trixie oder Dockerfile (hardened, benoetigt DHI-Zugang)
+      dockerfile: Dockerfile.alpine
+    image: gast:0.1.0-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      mail:
+        condition: service_healthy
+    ports:
+      - published: 8000
+        target: 8000
+    volumes:
+      # ueberschreibt die im Image gebackene app.toml mit den Container-Hostnamen
+      - ./app.toml:/opt/app/.venv/lib/python3.15/site-packages/gast/config/resources/app.toml:ro
+    networks: [acme-network]
+    hostname: gast
+    container_name: gast
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 8000), timeout=2)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "1.0"
+          memory: 512M
+
+networks:
+  acme-network:
+    name: acme-network

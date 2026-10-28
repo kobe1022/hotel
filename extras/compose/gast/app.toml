@@ -1,0 +1,56 @@
+# TOML = Tom's Obvious, Minimal Language
+# Tom Preston-Werner https://tom.preston-werner.com, Mitgruender von GitHub
+# Erstes Release im Maerz 2013
+
+# Diese Datei ueberschreibt die im Docker-Image gebackene app.toml (siehe
+# compose.yml: volumes), damit der Appserver im Container die Backend-Server
+# ueber die Service-Namen im Docker-Netzwerk statt ueber "localhost" erreicht.
+
+[server]
+host-binding = "0.0.0.0"
+# port = 8000
+
+[tls]
+# key = "key.pem"
+# certificate = "certificate.crt"
+
+[db]
+# dialect = "postgresql"
+# username = "gast"
+# name = "gast"
+password = "p"
+password-admin = "p"
+host = "postgres"
+log-statements = true
+
+[mail]
+# enabled = false
+host = "mail"
+port = 1025
+# timeout = 1.0
+# sender = "Python Server <python.server@acme.com>"
+# receivers = ["Rezeption <rezeption@acme.com>"]
+
+[excel]
+enabled = true
+
+[keycloak]
+# schema = "https"
+host = "keycloak"
+port = 8443
+# realm = "python"
+# client-id = "python-client"
+client-secret = "Change Me!"
+# admin = "admin"
+admin-password = "p"
+csv = "extras/compose/postgres/init/gast/csv/gast.csv"
+
+[graphql]
+graphiql-enabled = true
+
+[logger]
+debug-level = true
+
+[dev]
+db-populate = true
+keycloak-populate = true

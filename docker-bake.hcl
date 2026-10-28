@@ -7,7 +7,7 @@
 # https://docs.docker.com/build/bake/reference
 
 group "default" {
-    targets = ["trixie", "alpine"]
+    targets = ["alpine"]
     # targets = ["hardened", "trixie", "alpine"]
 }
 
@@ -18,6 +18,9 @@ target "hardened" {
     #no-cache = true
 }
 
+# Aktuell kaputt: pydantic-core hat noch kein vorkompiliertes Wheel fuer Python 3.15.0rc2
+# (nur sdist), der lokale Build daraus erzeugt eine musl-markierte .so, die unter
+# glibc/Debian nicht geladen werden kann. Sollte sich mit Python 3.15 final erledigen.
 target "trixie" {
     tags = ["gast:0.1.0-trixie"]
     dockerfile = "Dockerfile.trixie"

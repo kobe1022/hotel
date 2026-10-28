@@ -108,6 +108,8 @@ WORKDIR /opt/app
 # https://medium.com/vantageai/how-to-make-your-python-docker-images-secure-fast-small-b3a6870373a0
 RUN <<EOF
 set -eux
+# libgcc wird zur Laufzeit von kompilierten Rust-/C-Extensions benoetigt (z.B. pydantic-core)
+apk --no-cache add libgcc
 # https://wiki.alpinelinux.org/wiki/Setting_up_a_new_user
 addgroup --gid ${APP_GID} app
 adduser --uid ${APP_UID} --ingroup app --shell /bin/bash --no-create-home --disabled-password app
