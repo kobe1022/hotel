@@ -1,0 +1,59 @@
+@startuml ErDiagramm
+
+title ER-Diagramm: Datenbankschema "gast"
+
+skinparam linetype ortho
+
+entity "gast" as gast {
+  * id : INTEGER <<generated, PK>>
+  --
+  version : INTEGER
+  vorname : TEXT
+  nachname : TEXT
+  email : TEXT <<unique>>
+  treuestufe : INTEGER <<check: 0..9>>
+  has_newsletter : BOOLEAN
+  geburtsdatum : DATE <<check: < heute>>
+  homepage : TEXT <<nullable>>
+  username : TEXT
+  erzeugt : TIMESTAMP
+  aktualisiert : TIMESTAMP
+}
+
+entity "adresse" as adresse {
+  * id : INTEGER <<generated, PK>>
+  --
+  plz : TEXT <<check: 5 Ziffern>>
+  ort : TEXT
+  gast_id : INTEGER <<FK>>
+}
+
+entity "buchung" as buchung {
+  * id : INTEGER <<generated, PK>>
+  --
+  betrag : NUMERIC(10,2)
+  waehrung : TEXT <<check: 3 Großbuchstaben>>
+  zimmerkategorie : zimmerkategorie <<ENUM>>
+  verpflegung : verpflegung <<ENUM>>
+  zahlungsart : zahlungsart <<ENUM>>
+  anreise : DATE
+  abreise : DATE <<check: > anreise>>
+  anzahl_gaeste : INTEGER <<check: 1..10>>
+  gast_id : INTEGER <<FK>>
+}
+
+gast ||--o| adresse : "gast_id\nON DELETE CASCADE"
+gast ||--o{ buchung : "gast_id\nON DELETE CASCADE"
+
+note bottom of buchung
+  zimmerkategorie, verpflegung und zahlungsart sind
+  native PostgreSQL-ENUM-Typen (CREATE TYPE ... AS ENUM),
+  keine eigenen Tabellen.
+end note
+
+note bottom of gast
+  Indizes: gast_nachname_idx (nachname),
+  impliziter UNIQUE-Index auf email
+end note
+
+@enduml

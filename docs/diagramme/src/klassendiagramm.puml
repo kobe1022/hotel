@@ -1,0 +1,78 @@
+@startuml Klassendiagramm
+
+title Klassendiagramm: Entity-Modell "Gast"
+
+skinparam classAttributeIconSize 0
+hide circle
+
+abstract class Base <<SQLAlchemy>> {
+}
+
+class Gast {
+  id : int
+  version : int
+  vorname : str
+  nachname : str
+  email : str
+  username : str | None
+  treuestufe : int
+  has_newsletter : bool
+  geburtsdatum : date
+  homepage : str | None
+  erzeugt : datetime
+  aktualisiert : datetime
+  --
+  set(gast: Gast) : None
+}
+
+class Adresse {
+  id : int
+  plz : str
+  ort : str
+}
+
+class Buchung {
+  id : int
+  betrag : Decimal
+  waehrung : str
+  anreise : date
+  abreise : date
+  anzahl_gaeste : int
+}
+
+enum Zimmerkategorie {
+  EINZELZIMMER
+  DOPPELZIMMER
+  FAMILIENZIMMER
+  JUNIOR_SUITE
+  SUITE
+  PRESIDENTIAL_SUITE
+}
+
+enum Verpflegung {
+  UEBERNACHTUNG
+  FRUEHSTUECK
+  HALBPENSION
+  VOLLPENSION
+  ALL_INCLUSIVE
+}
+
+enum Zahlungsart {
+  KREDITKARTE
+  BAR
+  UEBERWEISUNG
+  PAYPAL
+}
+
+Base <|-- Gast
+Base <|-- Adresse
+Base <|-- Buchung
+
+Gast "1" *-- "0..1" Adresse : adresse\n(cascade: save-update, delete)
+Gast "1" *-- "0..*" Buchung : buchungen\n(cascade: save-update, delete)
+
+Buchung --> Zimmerkategorie : zimmerkategorie
+Buchung --> Verpflegung : verpflegung
+Buchung --> Zahlungsart : zahlungsart
+
+@enduml

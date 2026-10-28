@@ -1,0 +1,68 @@
+@startuml Komponentendiagramm
+
+title Komponentendiagramm: Architektur des Gast-Service
+
+skinparam componentStyle rectangle
+
+actor Client
+
+package "gast (FastAPI-App)" {
+
+  component "REST-Schnittstelle\n(gast_router, gast_write_router,\nauth_router, health_router, ...)" as REST
+  component "GraphQL-Schnittstelle\n(schema, graphql_types)" as GraphQL
+
+  package "Security" {
+    component "RolesRequired" as RolesRequired
+    component "UserService" as UserService
+    component "TokenService" as TokenService
+  }
+
+  package "Service" {
+    component "GastService" as GastService
+    component "GastWriteService" as GastWriteService
+    component "Mailer\n(send_mail)" as Mailer
+  }
+
+  package "Repository" {
+    component "GastRepository" as GastRepository
+    component "Session / Engine" as Session
+  }
+
+  package "Entity" as EntityPackage {
+    component "Gast, Adresse, Buchung\n(+ Enums)" as Entity
+  }
+}
+
+database "PostgreSQL" as Postgres
+cloud "Keycloak" as Keycloak
+cloud "Mailpit (SMTP)" as Mailpit
+cloud "Prometheus" as Prometheus
+
+Client --> REST : HTTPS (REST)
+Client --> GraphQL : HTTPS (GraphQL)
+
+REST --> RolesRequired
+GraphQL --> RolesRequired
+REST --> GastService
+REST --> GastWriteService
+GraphQL --> GastService
+GraphQL --> GastWriteService
+
+RolesRequired --> TokenService
+TokenService --> Keycloak : Public Key / JWKS
+UserService --> Keycloak : Admin-REST-API
+
+GastWriteService --> UserService
+GastService --> Entity
+GastWriteService --> Entity
+GastService --> GastRepository
+GastWriteService --> GastRepository
+GastWriteService --> Mailer
+
+GastRepository --> Session
+Session --> Postgres : SQLAlchemy / asyncpg
+Mailer --> Mailpit : SMTP
+
+Prometheus --> REST : scrape /metrics
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml UseCaseDiagramm
+
+title Use-Case-Diagramm: Hotelgast-Verwaltung
+
+left to right direction
+skinparam packageStyle rect
+
+actor "Anonym" as Anonym
+actor "GAST" as GastRolle
+actor "ADMIN" as Admin
+actor "Monitoring" as Monitoring
+
+Admin --|> GastRolle
+
+rectangle "Gast-Service" {
+  usecase "Login\n(Access Token anfordern)" as UC_Login
+  usecase "Neuen Gast anlegen\n(Registrierung)" as UC_Create
+  usecase "Gast anhand ID suchen" as UC_FindById
+  usecase "Gäste suchen\n(Suchparameter, Paginierung)" as UC_Find
+  usecase "Nachnamen suchen" as UC_FindNachnamen
+  usecase "Gast aktualisieren" as UC_Update
+  usecase "Gast löschen" as UC_Delete
+  usecase "Excel-Export der Gästeliste" as UC_Excel
+  usecase "Bestätigungsmail senden" as UC_Mail
+  usecase "DB / Keycloak neu laden\n(Entwicklungsmodus)" as UC_Reload
+  usecase "Liveness / Readiness prüfen" as UC_Health
+}
+
+Anonym --> UC_Create
+Anonym --> UC_Login
+
+GastRolle --> UC_Login
+GastRolle --> UC_FindById
+GastRolle --> UC_Update
+GastRolle --> UC_Delete
+
+Admin --> UC_Find
+Admin --> UC_FindNachnamen
+Admin --> UC_Reload
+
+Monitoring --> UC_Health
+
+UC_Create ..> UC_Mail : <<include>>
+UC_Find ..> UC_Excel : <<include>>\n(falls Excel-Export aktiviert)
+
+note right of UC_FindById
+  ADMIN darf beliebige Gäste lesen,
+  GAST nur den eigenen Datensatz
+  (sonst ForbiddenError)
+end note
+
+note right of UC_Update
+  ADMIN und GAST benötigen
+  If-Match-Header (Versionsnummer)
+  zur optimistischen Synchronisation
+end note
+
+@enduml

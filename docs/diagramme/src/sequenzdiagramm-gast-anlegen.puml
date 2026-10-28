@@ -1,0 +1,73 @@
+@startuml SequenzdiagrammGastAnlegen
+
+title Sequenzdiagramm: "Neuen Gast anlegen" (POST /rest)
+
+autonumber
+
+actor Client
+participant "gast_write_router" as Router
+participant "GastWriteService" as Service
+participant "UserService\n(Keycloak)" as UserService
+participant "GastRepository" as Repo
+database "PostgreSQL" as DB
+participant "BackgroundTasks" as Background
+participant "Mailer" as Mailer
+
+Client -> Router : POST /rest (GastModel)
+activate Router
+
+Router -> Service : create(gast)
+activate Service
+
+Service -> UserService : username_exists(username)
+UserService --> Service : bool
+
+alt Benutzername existiert bereits
+  Service --> Router : raise UsernameExistsError
+  deactivate Service
+  Router --> Client : 422 ProblemDetails
+  deactivate Router
+else Benutzername frei
+  Service -> UserService : email_exists(email)
+  UserService --> Service : bool
+
+  alt Emailadresse existiert bereits
+    Service --> Router : raise EmailExistsError
+    deactivate Service
+    Router --> Client : 422 ProblemDetails
+    deactivate Router
+  else Emailadresse frei
+    Service -> UserService : create_user(user)
+    UserService --> Service : user_id
+
+    Service -> Repo : exists_email(email, session)
+    Repo -> DB : SELECT ... WHERE email = ?
+    DB --> Repo : false
+    Repo --> Service : false
+
+    Service -> Repo : create(gast, session)
+    activate Repo
+    Repo -> DB : INSERT INTO gast, adresse, buchung
+    DB --> Repo : gast_db (mit generierter ID)
+    Repo --> Service : gast_db
+    deactivate Repo
+
+    Service -> Service : GastDTO.from_gast(gast_db)
+    Service -> DB : session.commit()
+
+    Service --> Router : gast_dto
+    deactivate Service
+
+    Router -> Background : add_task(send_mail, gast_dto)
+    Router --> Client : 201 Created\nLocation: /rest/{id}
+    deactivate Router
+
+    == asynchron nach dem Response ==
+    Background -> Mailer : send_mail(gast_dto)
+    activate Mailer
+    Mailer -> Mailer : Mail über Mailpit/SMTP versenden
+    deactivate Mailer
+  end
+end
+
+@enduml
