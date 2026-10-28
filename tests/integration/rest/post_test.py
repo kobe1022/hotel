@@ -112,6 +112,72 @@ def test_post_invalid() -> None:
 
 @pytest.mark.rest
 @pytest.mark.post_request
+@pytest.mark.parametrize(
+    ("aenderung", "feld"),
+    [
+        ({"username": "ab"}, "username"),
+        ({"geburtsdatum": "2999-01-01"}, "geburtsdatum"),
+        ({"buchungen": [{"betrag": "99999999999.99"}]}, "betrag"),
+        ({"buchungen": [{"betrag": "-1"}]}, "betrag"),
+        ({"buchungen": [{"betrag": "1.234"}]}, "betrag"),
+        (
+            {"buchungen": [{"anreise": "2026-01-12", "abreise": "2026-01-10"}]},
+            "abreise",
+        ),
+        (
+            {"buchungen": [{"anreise": "2026-01-10", "abreise": "2026-01-10"}]},
+            "abreise",
+        ),
+    ],
+)
+def test_post_verletzt_db_constraints(aenderung: dict, feld: str) -> None:
+    """Werte, die die Constraints der DB verletzen, ergeben 422 statt 500."""
+    # arrange
+    buchung: Final = {
+        "betrag": "999.99",
+        "waehrung": "EUR",
+        "zimmerkategorie": "DZ",
+        "verpflegung": "F",
+        "zahlungsart": "K",
+        "anreise": "2026-01-10",
+        "abreise": "2026-01-12",
+        "anzahl_gaeste": 2,
+    }
+    neuer_gast: Final = {
+        "vorname": "Vornamerest",
+        "nachname": "Nachnamerest",
+        "email": "constraints@rest.de",
+        "treuestufe": 1,
+        "has_newsletter": True,
+        "geburtsdatum": "2022-02-01",
+        "homepage": "https://rest.de",
+        "adresse": {"plz": "99999", "ort": "Restort"},
+        "buchungen": [buchung],
+        "username": "testconstraints",
+    }
+    for key, value in aenderung.items():
+        if key == "buchungen":
+            neuer_gast[key] = [{**buchung, **value[0]}]
+        else:
+            neuer_gast[key] = value
+    headers = {"Content-Type": "application/json"}
+
+    # act
+    response: Final = post(
+        rest_url,
+        json=neuer_gast,
+        headers=headers,
+        timeout=timeout,
+        verify=certificate_path,
+    )
+
+    # assert
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert feld in response.text
+
+
+@pytest.mark.rest
+@pytest.mark.post_request
 def test_post_email_exists() -> None:
     # arrange
     email_exists: Final = "alice@acme.de"

@@ -4,7 +4,15 @@ from typing import Annotated
 lazy from datetime import date
 
 from loguru import logger
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, StringConstraints
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    HttpUrl,
+    StringConstraints,
+    field_validator,
+)
 
 from gast.entity import Gast
 
@@ -35,6 +43,15 @@ class GastUpdateModel(BaseModel):
     """Das Geburtsdatum. Keine strikte Validierung: String in JSON."""
     homepage: HttpUrl | None = None
     """Die optionale URL der Homepage."""
+
+    @field_validator("geburtsdatum")
+    @classmethod
+    def check_geburtsdatum_in_vergangenheit(cls, geburtsdatum: date) -> date:
+        """Das Geburtsdatum muss in der Vergangenheit liegen (vgl. CHECK in der DB)."""
+        if geburtsdatum >= date.today():  # ruff: ignore[call-date-today]
+            msg = "geburtsdatum muss in der Vergangenheit liegen"
+            raise ValueError(msg)
+        return geburtsdatum
 
     model_config = ConfigDict(
         # Beispiel fuer OpenAPI

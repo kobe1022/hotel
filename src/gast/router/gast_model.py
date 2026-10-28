@@ -21,7 +21,7 @@ class GastModel(GastUpdateModel):
     buchungen: list[BuchungModel]
     """Die Liste der Buchungen."""
     # https://docs.pydantic.dev/usage/types
-    username: Annotated[str, StringConstraints(max_length=20)]
+    username: Annotated[str, StringConstraints(min_length=3, max_length=20)]
     """Der Benutzername für Login."""
 
     # https://docs.pydantic.dev/latest/concepts/strict_mode/#as-a-configuration-value
