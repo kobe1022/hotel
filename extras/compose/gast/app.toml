@@ -43,7 +43,8 @@ port = 8443
 client-secret = "Change Me!"
 # admin = "admin"
 admin-password = "p"
-csv = "extras/compose/postgres/init/gast/csv/gast.csv"
+# CSV-Datei wird durch compose.yml nach /csv/gast.csv eingebunden
+#csv = "/csv/gast.csv"
 
 [graphql]
 graphiql-enabled = true
