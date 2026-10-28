@@ -24,12 +24,32 @@ services:
         condition: service_healthy
       mail:
         condition: service_healthy
+    stop_signal: SIGINT
     ports:
       - published: 8000
         target: 8000
     volumes:
       # ueberschreibt die im Image gebackene app.toml mit den Container-Hostnamen
-      - ./app.toml:/opt/app/.venv/lib/python3.15/site-packages/gast/config/resources/app.toml:ro
+      - type: bind
+        source: app.toml
+        target: /opt/app/.venv/lib/python3.15/site-packages/gast/config/resources/app.toml
+        read_only: true
+      - type: bind
+        source: ../../../log
+        target: /opt/app/log
+      # CSV-Datei, aus der Keycloak im dev-Modus neu geladen wird
+      - type: bind
+        source: ../postgres/init/gast/csv/gast.csv
+        target: /csv/gast.csv
+        read_only: true
+      # privater Schluessel fuer TLS: nicht im Image und nicht in Git
+      - type: bind
+        source: ../../../src/gast/config/resources/tls/key.pem
+        target: /opt/app/.venv/lib/python3.15/site-packages/gast/config/resources/tls/key.pem
+        read_only: true
+    env_file:
+      - path: .env
+        required: false
     networks: [acme-network]
     hostname: gast
     container_name: gast
