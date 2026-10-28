@@ -1,10 +1,10 @@
 """Pydantic-Model für die Buchungen."""
 
-from typing import Annotated
+from typing import Annotated, Self
 lazy from datetime import date
 lazy from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from gast.entity import Buchung, Verpflegung, Zahlungsart, Zimmerkategorie
 
@@ -14,8 +14,8 @@ __all__ = ["BuchungModel"]
 class BuchungModel(BaseModel):
     """Pydantic-Model für die Buchungen."""
 
-    betrag: Decimal = Field(strict=False)
-    """Der Betrag. Keine strikte Validierung: JSON -> float in Python."""
+    betrag: Decimal = Field(strict=False, ge=0, max_digits=10, decimal_places=2)
+    """Der Betrag (NUMERIC(10,2)). Keine strikte Validierung: JSON -> float."""
     waehrung: Annotated[str, StringConstraints(pattern=r"^[A-Z]{3}$")]
     """Die Währung."""
     zimmerkategorie: Zimmerkategorie = Field(strict=False)
@@ -53,6 +53,14 @@ class BuchungModel(BaseModel):
         # https://pydantic.dev/docs/validation/latest/concepts/models/#faux-immutability
         frozen=True,
     )
+
+    @model_validator(mode="after")
+    def check_abreise_nach_anreise(self) -> Self:
+        """Die Abreise muss nach der Anreise liegen, vgl. CHECK in der Tabelle."""
+        if self.abreise <= self.anreise:
+            msg = "abreise muss nach anreise liegen"
+            raise ValueError(msg)
+        return self
 
     def to_buchung(self) -> Buchung:
         """Konvertierung in ein Buchung-Objekt für SQLAlchemy.

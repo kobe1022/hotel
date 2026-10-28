@@ -5,7 +5,7 @@ from typing import Final
 
 import pytest
 from common_api_test import certificate_path, login, rest_url, timeout
-from requests import put
+from requests import get, put
 
 EMAIL_UPDATE: Final = "alice@acme.de.put"
 HOMEPAGE_UPDATE: Final = "https://www.acme.ch.put"
@@ -45,6 +45,16 @@ def test_put() -> None:
     # assert
     assert response.status_code == HTTPStatus.NO_CONTENT
     assert not response.text
+
+    # geaenderte Werte, auch die Homepage, wurden gespeichert
+    gelesen: Final = get(
+        f"{rest_url}/{gast_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=timeout,
+        verify=certificate_path,
+    ).json()
+    assert gelesen["vorname"] == "Vornameput"
+    assert gelesen["homepage"].rstrip("/") == HOMEPAGE_UPDATE
 
 
 @pytest.mark.rest

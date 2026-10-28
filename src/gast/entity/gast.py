@@ -115,6 +115,7 @@ class Gast(Base):
         self.treuestufe = gast.treuestufe
         self.has_newsletter = gast.has_newsletter
         self.geburtsdatum = gast.geburtsdatum
+        self.homepage = gast.homepage
 
     @override
     def __eq__(self, other: object) -> bool:

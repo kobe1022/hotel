@@ -3,6 +3,7 @@
 # https://docs.python.org/3/library/smtplib.html
 from email.message import EmailMessage
 from email.utils import make_msgid
+from html import escape
 from smtplib import SMTP, SMTPServerDisconnected
 from socket import gaierror
 from typing import Final
@@ -37,15 +38,11 @@ def send_mail(gast_dto: GastDTO) -> None:
     # https://docs.python.org/3/library/email.utils.html#email.utils.make_msgid
     msg["Message-ID"] = make_msgid(idstring=str(uuid4()))
 
-    msg.set_content(f"Neuer Gast: {gast_dto.nachname}")
+    msg.set_content(f"Neuer Gast: {gast_dto.vorname} {gast_dto.nachname}")
 
-    asparagus_cid: Final = make_msgid()
-    msg.add_alternative(
-        f"Neuer Gast: <b>{gast_dto.nachname}</b>".format(
-            asparagus_cid=asparagus_cid[1:-1]
-        ),
-        subtype="html",
-    )
+    # Eingaben maskieren, damit sie nicht als HTML interpretiert werden
+    name_html: Final = escape(f"{gast_dto.vorname} {gast_dto.nachname}")
+    msg.add_alternative(f"Neuer Gast: <b>{name_html}</b>", subtype="html")
 
     try:
         # https://docs.python.org/3/library/smtplib.html
