@@ -1,0 +1,55 @@
+# Aufruf:   uv run mkdocs serve
+#           uv run mkdocs build
+
+# https://www.mkdocs.org/user-guide/configuration
+
+site_name: Hotelgast
+site_description: REST- und GraphQL-Service für die Verwaltung von Hotelgästen
+repo_url: https://github.com/kobe1022/hotel
+repo_name: kobe1022/hotel
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: de
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Dunkles Theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Helles Theme
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - Start: index.md
+  - Architektur und Diagramme: diagramme.md
+
+plugins:
+  - search
+  - build_plantuml:
+      render: local
+      # lokales plantuml.jar erforderlich, z.B.:
+      #   mkdir -p ~/.local/share/plantuml
+      #   curl -L -o ~/.local/share/plantuml/plantuml.jar \
+      #     https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+      #   PLANTUML_BIN="java -jar /pfad/zu/plantuml.jar" uv run mkdocs build
+      bin_path: !ENV [PLANTUML_BIN, 'java -jar plantuml.jar']
+      output_format: svg
+      diagram_root: docs/diagramme
+      input_folder: src
+      output_folder: out
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.details

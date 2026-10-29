@@ -1,8 +1,8 @@
 """Pydantic-Model für die Buchungen."""
 
+from decimal import Decimal
 from typing import Annotated, Self
 lazy from datetime import date
-lazy from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -14,7 +14,9 @@ __all__ = ["BuchungModel"]
 class BuchungModel(BaseModel):
     """Pydantic-Model für die Buchungen."""
 
-    betrag: Decimal = Field(strict=False, ge=0, max_digits=10, decimal_places=2)
+    betrag: Decimal = Field(
+        strict=False, ge=Decimal(0), max_digits=10, decimal_places=2
+    )
     """Der Betrag (NUMERIC(10,2)). Keine strikte Validierung: JSON -> float."""
     waehrung: Annotated[str, StringConstraints(pattern=r"^[A-Z]{3}$")]
     """Die Währung."""

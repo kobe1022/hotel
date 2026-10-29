@@ -14,7 +14,8 @@ Bereits vorhanden sind: Server mit TLS, Konfiguration, Entities, Repository,
 PostgreSQL-Anbindung, Service-Schicht, REST- und GraphQL-Schnittstelle, Zugriffsschutz
 mit Keycloak, Neuladen von Datenbank und Keycloak im Entwicklungsmodus, E-Mail-Versand
 (Mailpit), Excel-Export, Tests, Lasttest (Locust) und eine Bruno-Collection.
-Noch offen sind u.a. Docker-Image mit CI, Dokumentation (mkdocs) und Abschlussarbeiten.
+Dokumentation mit mkdocs (siehe [Dokumentation](#dokumentation)) ist eingerichtet.
+Noch offen sind u.a. Docker-Image mit CI und Abschlussarbeiten.
 
 ## Autoren
 
@@ -48,6 +49,7 @@ _uv_ angelegt wurde.
 - [Testen](#testen)
 - [Statische Codeanalyse](#statische-codeanalyse)
 - [Analyse von Sicherheitslücken](#analyse-von-sicherheitslücken)
+- [Dokumentation](#dokumentation)
 - [Port bereits belegt?](#port-bereits-belegt)
 
 ## Backend-Server
@@ -169,6 +171,34 @@ Bekannte Sicherheitslücken in den verwendeten 3rd Party Packages prüft man mit
 
 ```shell
     uv audit
+```
+
+## Dokumentation
+
+Die Projektdokumentation wird mit _MkDocs_ (Theme _Material_) aus `docs/` erzeugt.
+Die UML-Diagramme liegen als PlantUML-Quellen unter `docs/diagramme/src/` und werden
+beim Build automatisch nach SVG gerendert (`docs/diagramme/out/`, nicht versioniert).
+
+Für das lokale Rendering wird _Java_ sowie `plantuml.jar` benötigt:
+
+```shell
+    mkdir -p ~/.local/share/plantuml
+    curl -L -o ~/.local/share/plantuml/plantuml.jar `
+        https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+```
+
+Der Pfad zu `plantuml.jar` wird über die Umgebungsvariable `PLANTUML_BIN` konfiguriert
+(Default: `java -jar plantuml.jar`, siehe `mkdocs.yml`), z.B. in `.env`:
+
+```shell
+    PLANTUML_BIN=java -jar /pfad/zu/plantuml.jar
+```
+
+Vorschau mit Live-Reload bzw. statischer Build nach `site/`:
+
+```shell
+    uv run --group doc mkdocs serve
+    uv run --group doc mkdocs build
 ```
 
 ## Port bereits belegt?

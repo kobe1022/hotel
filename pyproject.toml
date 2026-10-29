@@ -71,6 +71,7 @@ maintainers = [
     { name = "Aaron Stief" },
 ]
 requires-python = ">=3.15"
+# requires-python = ">=3.14"   # Fallback, falls wieder ein "-dhi"-Image fuer eine aeltere Version gebraucht wird
 keywords = [
     "Python",
     "FastAPI",

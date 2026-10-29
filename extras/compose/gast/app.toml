@@ -40,7 +40,7 @@ host = "keycloak"
 port = 8443
 # realm = "python"
 # client-id = "python-client"
-client-secret = "Change Me!"
+client-secret = "5kZX0mA5BKvwVzbttTAmrTwa3rjBqlgvplAU6kqcYBhaBMhR72EjXe94u47I5GLc9bnZOc1aTQWlQ025IibCFy"
 # admin = "admin"
 admin-password = "p"
 # CSV-Datei wird durch compose.yml nach /csv/gast.csv eingebunden

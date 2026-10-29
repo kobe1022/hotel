@@ -29,15 +29,22 @@
 # ARG: "build-time" Variable
 # ENV: "build-time" und "runtime" Variable
 ARG PYTHON_MAIN_VERSION=3.15
-ARG PYTHON_VERSION=${PYTHON_MAIN_VERSION}.0
-ARG UV_VERSION=0.12.20
+# ARG PYTHON_VERSION=${PYTHON_MAIN_VERSION}.0   # Patch-Tag "3.15.0" bei dhi.io noch nicht vorhanden
+ARG PYTHON_VERSION=${PYTHON_MAIN_VERSION}
+# ARG UV_VERSION=0.12.20   # zu alt: hat fuer python3.15 nur RC-Tags, kein "-dhi"
+ARG UV_VERSION=0.13.6
 
 # ------------------------------------------------------------------------------
 # S t a g e   b u i l d e r
 # ------------------------------------------------------------------------------
-FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_MAIN_VERSION}-dhi AS builder
+# FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_MAIN_VERSION}-dhi AS builder   # kein "-dhi"-Tag fuer python3.15 verfuegbar
+FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_MAIN_VERSION}-trixie-slim AS builder
 
 WORKDIR /opt/app
+
+# pyinstrument baut eine C-Extension aus dem Quellpaket (fuer Python 3.15 noch kein Wheel) -> gcc noetig
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Enable bytecode compilation
 # Copy from the cache instead of linking since it's a mounted volume
