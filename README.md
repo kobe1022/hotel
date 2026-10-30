@@ -179,27 +179,37 @@ Die Projektdokumentation wird mit _MkDocs_ (Theme _Material_) aus `docs/` erzeug
 Die UML-Diagramme liegen als PlantUML-Quellen unter `docs/diagramme/src/` und werden
 beim Build automatisch nach SVG gerendert (`docs/diagramme/out/`, nicht versioniert).
 
-Für das lokale Rendering wird _Java_ sowie `plantuml.jar` benötigt:
+Für das lokale Rendering werden _Java_, _Graphviz_ (`dot`) sowie `plantuml.jar` benötigt.
+Die Datei `plantuml.jar` kann an einem beliebigen Ort liegen, am besten außerhalb des
+Projekts, z.B. in _PowerShell_:
 
 ```shell
-    mkdir -p ~/.local/share/plantuml
-    curl -L -o ~/.local/share/plantuml/plantuml.jar `
-        https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+    New-Item -ItemType Directory -Force C:\Tools\plantuml
+    curl.exe -L -o C:\Tools\plantuml\plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+    java -jar C:\Tools\plantuml\plantuml.jar -version
 ```
 
-Der Pfad zu `plantuml.jar` wird über die Umgebungsvariable `PLANTUML_BIN` konfiguriert
-(Default: `java -jar plantuml.jar`, siehe `mkdocs.yml`), z.B. in `.env`:
+Der Aufruf wird über die Umgebungsvariable `PLANTUML_BIN` konfiguriert
+(Default: `java -jar plantuml.jar`, siehe `mkdocs.yml`). _MkDocs_ liest die Datei `.env`
+nicht, deshalb muss die Variable in der Shell gesetzt werden:
 
 ```shell
-    PLANTUML_BIN=java -jar /pfad/zu/plantuml.jar
+    # nur für die aktuelle PowerShell
+    $env:PLANTUML_BIN = "java -jar C:/Tools/plantuml/plantuml.jar"
+
+    # dauerhaft (danach eine neue Shell öffnen)
+    setx PLANTUML_BIN "java -jar C:/Tools/plantuml/plantuml.jar"
 ```
 
 Vorschau mit Live-Reload bzw. statischer Build nach `site/`:
 
 ```shell
     uv run --group doc mkdocs serve
-    uv run --group doc mkdocs build
+    uv run --group doc mkdocs build --strict
 ```
+
+Falls der Port `8000` belegt ist (z.B. durch den Server), startet man die Vorschau mit
+`uv run --group doc mkdocs serve -a 127.0.0.1:8001`.
 
 ## Port bereits belegt?
 

@@ -15,6 +15,13 @@ Architektur des Gast-Service: Router, Service- und Repository-Schicht.
 
 ![Komponentendiagramm](diagramme/out/Komponentendiagramm.svg)
 
+## Schichtenarchitektur
+
+Die Schichten des Gast-Service mit ihren wichtigsten Funktionen: Router, GraphQL,
+Geschäftslogik, Datenbankzugriff und Entities.
+
+![Schichtenarchitektur](diagramme/out/Schichtenarchitektur.svg)
+
 ## Klassendiagramm
 
 Entity-Modell "Gast" mit den zugehörigen Entitäten.

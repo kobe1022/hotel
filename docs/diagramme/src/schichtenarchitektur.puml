@@ -1,0 +1,74 @@
+@startuml Schichtenarchitektur
+
+title Schichtenarchitektur: Gast-Service
+
+package gast #DDDDDD {
+    package router #FFFFFF {
+        [@router.get()\nget_by_id()\nget()\nget_nachnamen()\n\n@router.api_route()\nquery()] as GastGetController
+        [@router.post()\npost()\n\n@router.put()\nput()\n\n@router.delete()\ndelete_by_id()] as GastWriteController
+        [@router.get()\nliveness()\n\n@router.get()\nreadiness()] as HealthController
+
+        [GastGetController] -right[hidden]-> [GastWriteController]
+    }
+
+    package graphql_api #FFFFFF {
+        [Query\ngast()\ngaeste()\n\nMutation\ncreate()\nlogin()] as GraphQL
+    }
+
+    package service #FFFFFF {
+        [find_by_id()\nfind()\nfind_nachnamen()] as GastService
+        [create()\nupdate()\ndelete_by_id()] as GastWriteService
+    }
+
+    [GastGetController] --> [GastService]
+    [GastWriteController] --> [GastWriteService]
+    [GraphQL] --> [GastService]
+    [GraphQL] --> [GastWriteService]
+
+    package repository #FFFFFF {
+        [find_by_id()\nfind()\nexists_email()\nexists_email_other_id()\nfind_nachnamen()\ncreate()\nupdate()\ndelete_by_id()] as GastRepository
+        [Engine / Session\n(session_factory)] as Session
+    }
+
+    [GastService] --> [GastRepository]
+    [GastWriteService] --> [GastRepository]
+    [GastRepository] --> [Session]
+    [HealthController] --> [Session]
+
+    package entity #FFFFFF {
+        [Gast]
+        [Adresse]
+        [Buchung]
+
+        [Gast] -right[hidden]-> [Adresse]
+        [Adresse] -down[hidden]-> [Buchung]
+    }
+
+    [GastGetController] ..> [Gast]
+    [GastWriteController] ..> [Gast]
+    [GastService] .left.> [Gast]
+    [GastWriteService] ..> [Gast]
+    [GastRepository] ..> [Gast]
+}
+
+RESTClient ~~> [GastGetController]
+RESTClient ~~> [GastWriteController]
+RESTClient ~~> [HealthController]
+RESTClient ~~> [GraphQL]
+
+cloud {
+    [SQLAlchemy\n(OR-Mapping)] as SQLAlchemy
+}
+
+[Session] ~down~> [SQLAlchemy]
+entity ~~> [SQLAlchemy]
+
+database "DB gast" as db {
+    [Tabelle gast]
+    [Tabelle adresse]
+    [Tabelle buchung]
+}
+
+[SQLAlchemy] ~down~> db
+
+@enduml
