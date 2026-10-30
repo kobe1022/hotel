@@ -21,7 +21,7 @@ rectangle "Gast-Service" {
   usecase "Gast aktualisieren" as UC_Update
   usecase "Gast löschen" as UC_Delete
   usecase "Excel-Export der Gästeliste" as UC_Excel
-  usecase "Bestätigungsmail senden" as UC_Mail
+  usecase "Benachrichtigung an die Rezeption senden" as UC_Mail
   usecase "DB / Keycloak neu laden\n(Entwicklungsmodus)" as UC_Reload
   usecase "Liveness / Readiness prüfen" as UC_Health
 }

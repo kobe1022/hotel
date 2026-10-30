@@ -49,11 +49,17 @@ note bottom of buchung
   zimmerkategorie, verpflegung und zahlungsart sind
   native PostgreSQL-ENUM-Typen (CREATE TYPE ... AS ENUM),
   keine eigenen Tabellen.
+  Index: buchung_gast_id_idx (gast_id)
 end note
 
 note bottom of gast
   Indizes: gast_nachname_idx (nachname),
   impliziter UNIQUE-Index auf email
+end note
+
+note bottom of adresse
+  Indizes: adresse_gast_id_idx (gast_id),
+  adresse_plz_idx (plz)
 end note
 
 @enduml

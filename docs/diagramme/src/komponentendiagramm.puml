@@ -60,7 +60,7 @@ GastWriteService --> GastRepository
 GastWriteService --> Mailer
 
 GastRepository --> Session
-Session --> Postgres : SQLAlchemy / asyncpg
+Session --> Postgres : SQLAlchemy / psycopg
 Mailer --> Mailpit : SMTP
 
 Prometheus --> REST : scrape /metrics
