@@ -37,8 +37,16 @@ ARG UV_VERSION=0.13.6
 # ------------------------------------------------------------------------------
 # S t a g e   b u i l d e r
 # ------------------------------------------------------------------------------
-# FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_MAIN_VERSION}-dhi AS builder   # kein "-dhi"-Tag fuer python3.15 verfuegbar
-FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_MAIN_VERSION}-trixie-slim AS builder
+# uv-Image fuer Python 3.15 gibt es noch nicht als "-dhi"-Variante, daher wird uv separat
+# bereitgestellt. Sobald es "uv:${UV_VERSION}-python${PYTHON_MAIN_VERSION}-dhi" gibt, kann
+# der Builder wieder direkt darauf basieren (ohne die Stage "uv" und das COPY unten).
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
+# Builder und final sind beide dhi.io/python (Debian 13), damit die Pfade zu Python im Venv
+# in beiden Stages uebereinstimmen (/usr/bin/python).
+FROM dhi.io/python:${PYTHON_VERSION}-debian13-dev AS builder
+
+COPY --from=uv /uv /uvx /usr/local/bin/
 
 WORKDIR /opt/app
 
