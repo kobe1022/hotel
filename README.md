@@ -75,6 +75,27 @@ beide Server gemeinsam gestartet werden:
     docker compose up
 ```
 
+_Mailpit_ hat eine eigene Compose-Datei. Alle drei Backend-Server (PostgreSQL, Keycloak
+und Mailpit) startet man gemeinsam mit einem einzigen Kommando, indem man beide
+Compose-Dateien angibt:
+
+```shell
+    # Windows
+    cd .\extras\compose
+    docker compose -f keycloak\compose.yml -f mailpit\compose.yml up -d
+
+    # macOS / Linux
+    cd ./extras/compose
+    docker compose -f keycloak/compose.yml -f mailpit/compose.yml up -d
+```
+
+Heruntergefahren werden sie mit demselben Kommando, nur mit `down` statt `up -d`.
+
+Soll auch der Applikationsserver als Container laufen, startet man alles zusammen
+(PostgreSQL, Keycloak, Mailpit und Appserver) im Verzeichnis `extras\compose\gast` mit
+`docker compose up`, siehe [Docker Image und Container](#docker-image-und-container).
+Dabei dürfen die Backend-Server nicht schon einzeln laufen.
+
 ## Applikationsserver
 
 Durch das Kommando `uv run gast` kann man den Server starten (siehe `project.scripts`

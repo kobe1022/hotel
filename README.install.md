@@ -70,6 +70,22 @@ Clients muss mit dem Eintrag `client-secret` in
 `src\gast\config\resources\app.toml` übereinstimmen, siehe den Abschnitt
 _Client Secret_ in der `ReadMe.md` von Keycloak.
 
+Die drei Backend-Server startet man gemeinsam mit einem einzigen Kommando. Die
+Compose-Datei für _Keycloak_ bindet dabei _PostgreSQL_ ein:
+
+```shell
+    # Windows:
+    cd extras\compose
+    docker compose -f keycloak\compose.yml -f mailpit\compose.yml up -d
+
+    # macOS/Linux:
+    cd extras/compose
+    docker compose -f keycloak/compose.yml -f mailpit/compose.yml up -d
+```
+
+Mit demselben Kommando, aber mit `down` statt `up -d`, werden sie wieder heruntergefahren.
+Alternativ startet man sie einzeln im jeweiligen Unterverzeichnis mit `docker compose up`.
+
 ## Applikationsserver
 
 Durch das Kommando `uv run gast` kann man den Server starten (siehe `project.scripts`
@@ -107,8 +123,9 @@ Das _hardened_ Image auf Basis von _Debian 13_ benötigt einen Zugang zu `dhi.io
 
 ## Docker Container
 
-Um einen Docker Container einschließlich der Backend-Server zu starten, die dann
-natürlich noch nicht gestartet sein dürfen, setzt man folgende Kommandos ab:
+Um alles gemeinsam zu starten, also den Appserver als Docker Container zusammen mit
+PostgreSQL, Keycloak und Mailpit, setzt man folgende Kommandos ab. Die Backend-Server
+dürfen dann natürlich noch nicht einzeln gestartet sein:
 
 ```shell
     # Windows:
@@ -119,6 +136,8 @@ natürlich noch nicht gestartet sein dürfen, setzt man folgende Kommandos ab:
 
     docker compose up
 ```
+
+Beendet wird mit `Strg+C` und anschließend `docker compose down` im selben Verzeichnis.
 
 ## Dokumentation
 
