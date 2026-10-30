@@ -14,16 +14,16 @@ http:
     type: json
     data: |-
       {
-          "vorname": "Vornamenachnamerest",
-          "nachname": "Nachnamerest",
-          "email": "testrest@test.rest",
+          "vorname": "Maria",
+          "nachname": "Neumann",
+          "email": "maria.neumann@acme.de",
           "treuestufe": 1,
           "has_newsletter": true,
           "geburtsdatum": "2022-02-01",
-          "homepage": "https://test.rest",
+          "homepage": "https://www.neumann.de",
           "adresse": {
-              "plz": "99999",
-              "ort": "Restort"
+              "plz": "76131",
+              "ort": "Karlsruhe"
           },
           "buchungen": [
               {
@@ -37,7 +37,7 @@ http:
                   "anzahl_gaeste": 2
               }
           ],
-          "username": "testrest"
+          "username": "mneumann"
       }
   auth: inherit
 

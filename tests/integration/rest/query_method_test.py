@@ -13,7 +13,9 @@ QUERY_URL: Final = f"{rest_url}/query"
 
 @pytest.mark.rest
 @pytest.mark.query_request
-@pytest.mark.parametrize("email", ["admin@acme.com", "alice@acme.edu", "alice@acme.de"])
+@pytest.mark.parametrize(
+    "email", ["admin@acme.com", "jonas.becker@acme.edu", "lena.becker@acme.de"]
+)
 def test_get_by_email(email: str) -> None:
     # arrange
     params = {"email": email}
@@ -69,7 +71,7 @@ def test_get_by_email_not_found(email: str) -> None:
 
 @pytest.mark.rest
 @pytest.mark.get_request
-@pytest.mark.parametrize("teil", ["Alice", "n"])
+@pytest.mark.parametrize("teil", ["Becker", "n"])
 def test_get_by_nachname(teil: str) -> None:
     # arrange
     params = {"nachname": teil}

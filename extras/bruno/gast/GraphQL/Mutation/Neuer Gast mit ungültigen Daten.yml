@@ -15,7 +15,7 @@ graphql:
       mutation {
         create(
           gastInput: {
-            vorname: "Vorname"
+            vorname: "Max"
             nachname: "falscher_nachname"
             email: "falsche_email@"
             treuestufe: 1
@@ -36,7 +36,7 @@ graphql:
               abreise: "2026-01-12"
               anzahlGaeste: 2
             }]
-            username: "testgraphql"
+            username: "mmueller"
           }
         ) {
           id

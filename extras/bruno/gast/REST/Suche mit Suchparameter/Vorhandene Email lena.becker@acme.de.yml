@@ -1,17 +1,17 @@
 info:
-  name: Vorhandener Nachname Alice
+  name: Vorhandene Email lena.becker@acme.de
   type: http
-  seq: 3
+  seq: 5
 
 http:
   method: GET
-  url: "{{restUrl}}?nachname=Alice"
+  url: "{{restUrl}}?email=lena.becker@acme.de"
   headers:
     - name: Accept
       value: application/json
   params:
-    - name: nachname
-      value: Alice
+    - name: email
+      value: lena.becker@acme.de
       type: query
   auth: inherit
 
@@ -19,14 +19,10 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        test('Body: Nachname "Alpha" und ID > 0', () => {
-          res.getBody()
-            .content
-            .forEach(gast => {
-              const { nachname, id } = gast;
-              expect(nachname).to.be.equal('Alice');
-              expect(id).to.be.above(0);
-            });
+        test('Body: Email lena.becker@acme.de und ID > 0', () => {
+          const { email, id } = res.getBody().content[0];
+          expect(email).to.be.equal('lena.becker@acme.de');
+          expect(id).to.be.above(0);
         });
   assertions:
     - expression: res.status
@@ -38,7 +34,8 @@ runtime:
     - expression: res.body.content
       operator: isArray
     - expression: res.body.content
-      operator: isNotEmpty
+      operator: length
+      value: "1"
 
 settings:
   encodeUrl: true

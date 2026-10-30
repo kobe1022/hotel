@@ -14,16 +14,16 @@ http:
     type: json
     data: |-
       {
-          "vorname": "Vornamenachnamerest",
-          "nachname": "Nachnamerest",
-          "email": "alice@acme.de",
+          "vorname": "Tobias",
+          "nachname": "Klein",
+          "email": "lena.becker@acme.de",
           "treuestufe": 1,
           "has_newsletter": true,
           "geburtsdatum": "2022-02-01",
           "homepage": "https://test.rest",
           "adresse": {
-              "plz": "99999",
-              "ort": "Restort"
+              "plz": "76133",
+              "ort": "Karlsruhe"
           },
           "buchungen": [
               {
@@ -37,11 +37,9 @@ http:
                   "anzahl_gaeste": 2
               }
           ],
-          "username": "emailexists"
+          "username": "tklein"
       }
-  auth:
-    type: bearer
-    token: "{{TOKEN}}"
+  auth: inherit
 
 runtime:
   assertions:

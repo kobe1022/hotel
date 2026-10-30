@@ -15,16 +15,16 @@ graphql:
       mutation {
         create(
           gastInput: {
-            vorname: "Vorname"
-            nachname: "Nachnamegraphql"
-            email: "testgraphql@test.graphql"
+            vorname: "Sophie"
+            nachname: "Krause"
+            email: "sophie.krause@acme.de"
             treuestufe: 9
             hasNewsletter: true
             geburtsdatum: "2022-02-02"
-            homepage: "https://test.graphql"
+            homepage: "https://www.krause.de"
             adresse: {
-              plz: "99999"
-              ort: "Testort"
+              plz: "76137"
+              ort: "Karlsruhe"
             }
             buchungen: [{
               betrag: "999.99"
@@ -36,7 +36,7 @@ graphql:
               abreise: "2026-01-12"
               anzahlGaeste: 2
             }]
-            username: "testgraphql"
+            username: "skrause"
           }
         ) {
           id

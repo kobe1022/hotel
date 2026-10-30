@@ -191,7 +191,7 @@ def test_query_nachname() -> None:
     query: Final = {
         "query": """
             {
-                gaeste(suchparameter: {nachname: "Alice"}) {
+                gaeste(suchparameter: {nachname: "Becker"}) {
                     id
                     version
                     nachname

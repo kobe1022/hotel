@@ -17,7 +17,7 @@ http:
     type: json
     data: |-
       {
-          "vorname": "Vornamefalscher_nac",
+          "vorname": "Jonas",
           "nachname": "falscher_nachname_put",
           "email": "falsche_email_put@",
           "treuestufe": 11,

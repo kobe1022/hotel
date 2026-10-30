@@ -12,7 +12,7 @@ graphql:
       disabled: true
   body:
     query: |-
-      query ($email: String = "alice@acme.com") {
+      query ($email: String = "admin@acme.com") {
         gaeste(suchparameter: {email: $email}) {
           id
           version

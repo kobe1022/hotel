@@ -13,10 +13,10 @@ request:
       clientSecret: "{{clientSecret}}"
       placement: body
     resourceOwner:
-      username: alice30
+      username: jbecker
       password: p
     tokenConfig:
-      id: credentials
+      id: credentials-gast
       placement:
         header: Bearer
     settings:

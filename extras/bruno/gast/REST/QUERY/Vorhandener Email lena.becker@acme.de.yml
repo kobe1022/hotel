@@ -1,5 +1,5 @@
 info:
-  name: Vorhandener Email alice@acme.de
+  name: Vorhandener Email lena.becker@acme.de
   type: http
   seq: 3
 
@@ -14,7 +14,7 @@ http:
     type: json
     data: |-
       {
-          "email": "alice@acme.de"
+          "email": "lena.becker@acme.de"
       }
   auth: inherit
 

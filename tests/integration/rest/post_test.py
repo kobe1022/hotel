@@ -17,14 +17,14 @@ token: str | None
 def test_post() -> None:
     # arrange
     neuer_gast: Final = {
-        "vorname": "Vornamerest",
-        "nachname": "Nachnamerest",
-        "email": "testrest@rest.de",
+        "vorname": "Anna",
+        "nachname": "Schulz",
+        "email": "anna.schulz@acme.de",
         "treuestufe": 1,
         "has_newsletter": True,
         "geburtsdatum": "2022-02-01",
-        "homepage": "https://rest.de",
-        "adresse": {"plz": "99999", "ort": "Restort"},
+        "homepage": "https://www.schulz.de",
+        "adresse": {"plz": "76133", "ort": "Karlsruhe"},
         "buchungen": [
             {
                 "betrag": "999.99",
@@ -37,7 +37,7 @@ def test_post() -> None:
                 "anzahl_gaeste": 2,
             },
         ],
-        "username": "testrest",
+        "username": "aschulz",
     }
     headers = {"Content-Type": "application/json"}
 
@@ -64,14 +64,14 @@ def test_post() -> None:
 def test_post_invalid() -> None:
     # arrange
     neuer_gast_invalid: Final = {
-        "vorname": "Vornamerest",
+        "vorname": "Anna",
         "nachname": "falscher_nachname",
         "email": "falsche_email@",
         "treuestufe": 11,
         "has_newsletter": True,
         "geburtsdatum": "2022-02-01",
         "homepage": "https://?!",
-        "adresse": {"plz": "1234", "ort": "Restort"},
+        "adresse": {"plz": "1234", "ort": "Karlsruhe"},
         "buchungen": [
             {
                 "betrag": "222.2",
@@ -84,7 +84,7 @@ def test_post_invalid() -> None:
                 "anzahl_gaeste": 2,
             },
         ],
-        "username": "testrestinvalid",
+        "username": "lschulz",
     }
     headers = {"Content-Type": "application/json"}
 
@@ -144,16 +144,16 @@ def test_post_verletzt_db_constraints(aenderung: dict, feld: str) -> None:
         "anzahl_gaeste": 2,
     }
     neuer_gast: Final = {
-        "vorname": "Vornamerest",
-        "nachname": "Nachnamerest",
-        "email": "constraints@rest.de",
+        "vorname": "Anna",
+        "nachname": "Schulz",
+        "email": "lisa.schulz@acme.de",
         "treuestufe": 1,
         "has_newsletter": True,
         "geburtsdatum": "2022-02-01",
-        "homepage": "https://rest.de",
-        "adresse": {"plz": "99999", "ort": "Restort"},
+        "homepage": "https://www.schulz.de",
+        "adresse": {"plz": "76133", "ort": "Karlsruhe"},
         "buchungen": [buchung],
-        "username": "testconstraints",
+        "username": "kschulz",
     }
     for key, value in aenderung.items():
         if key == "buchungen":
@@ -180,16 +180,16 @@ def test_post_verletzt_db_constraints(aenderung: dict, feld: str) -> None:
 @pytest.mark.post_request
 def test_post_email_exists() -> None:
     # arrange
-    email_exists: Final = "alice@acme.de"
+    email_exists: Final = "lena.becker@acme.de"
     neuer_gast: Final = {
-        "vorname": "Vornamerest",
-        "nachname": "Nachnamerest",
+        "vorname": "Anna",
+        "nachname": "Schulz",
         "email": email_exists,
         "treuestufe": 1,
         "has_newsletter": True,
         "geburtsdatum": "2022-02-01",
-        "homepage": "https://rest.de",
-        "adresse": {"plz": "99999", "ort": "Restort"},
+        "homepage": "https://www.schulz.de",
+        "adresse": {"plz": "76133", "ort": "Karlsruhe"},
         "buchungen": [
             {
                 "betrag": "999.99",
@@ -202,7 +202,7 @@ def test_post_email_exists() -> None:
                 "anzahl_gaeste": 2,
             },
         ],
-        "username": "emailexists",
+        "username": "tschulz",
     }
     headers = {"Content-Type": "application/json"}
 

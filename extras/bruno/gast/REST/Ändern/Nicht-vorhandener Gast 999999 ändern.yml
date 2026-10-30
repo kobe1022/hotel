@@ -17,13 +17,13 @@ http:
     type: json
     data: |-
       {
-          "vorname": "Vornamealphaput",
-          "nachname": "Alphaput",
-          "email": "alpha@acme.de.put",
+          "vorname": "Jonas",
+          "nachname": "Brandt",
+          "email": "jonas.brandt@acme.de",
           "treuestufe": 9,
           "has_newsletter": false,
           "geburtsdatum": "2022-01-09",
-          "homepage": "https://www.acme.ch.put"
+          "homepage": "https://www.brandt.de"
       }
   auth: inherit
 

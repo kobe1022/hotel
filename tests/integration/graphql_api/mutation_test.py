@@ -17,16 +17,16 @@ def test_create() -> None:
             mutation {
                 create(
                     gastInput: {
-                        vorname: "Vornamegraphql"
-                        nachname: "Nachnamegraphql"
-                        email: "testgraphql@graphql.de"
+                        vorname: "Sophie"
+                        nachname: "Krause"
+                        email: "sophie.krause@acme.de"
                         treuestufe: 1
                         hasNewsletter: true
                         geburtsdatum: "2022-01-31"
-                        homepage: "https://graphql.de"
+                        homepage: "https://www.krause.de"
                         adresse: {
-                            plz: "99999"
-                            ort: "Mutationort"
+                            plz: "76137"
+                            ort: "Karlsruhe"
                         }
                         buchungen: [
                             {
@@ -40,7 +40,7 @@ def test_create() -> None:
                                 anzahlGaeste: 2
                             }
                         ]
-                        username: "testgraphql"
+                        username: "skrause"
                     }
                 ) {
                     id
@@ -75,7 +75,7 @@ def test_create_invalid() -> None:
             mutation {
                 create(
                     gastInput: {
-                        vorname: "Vornamegraphql"
+                        vorname: "Sophie"
                         nachname: "falscher_nachname"
                         email: "falsche_email@"
                         treuestufe: 1
@@ -84,7 +84,7 @@ def test_create_invalid() -> None:
                         homepage: "https://?!"
                         adresse: {
                             plz: "1234"
-                            ort: "Testort"
+                            ort: "Karlsruhe"
                         }
                         buchungen: [{
                             betrag: "1"
@@ -96,7 +96,7 @@ def test_create_invalid() -> None:
                             abreise: "2026-01-12"
                             anzahlGaeste: 2
                         }]
-                        username: "testgraphql"
+                        username: "mmueller"
                     }
                 ) {
                     id

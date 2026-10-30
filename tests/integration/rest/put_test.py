@@ -7,8 +7,8 @@ import pytest
 from common_api_test import certificate_path, login, rest_url, timeout
 from requests import get, put
 
-EMAIL_UPDATE: Final = "alice@acme.de.put"
-HOMEPAGE_UPDATE: Final = "https://www.acme.ch.put"
+EMAIL_UPDATE: Final = "mia.brandt@acme.de"
+HOMEPAGE_UPDATE: Final = "https://www.brandt.de"
 
 
 @pytest.mark.rest
@@ -18,8 +18,8 @@ def test_put() -> None:
     gast_id: Final = 40
     if_match: Final = '"0"'
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": EMAIL_UPDATE,
         "treuestufe": 9,
         "has_newsletter": False,
@@ -53,7 +53,7 @@ def test_put() -> None:
         timeout=timeout,
         verify=certificate_path,
     ).json()
-    assert gelesen["vorname"] == "Vornameput"
+    assert gelesen["vorname"] == "Mia"
     assert gelesen["homepage"].rstrip("/") == HOMEPAGE_UPDATE
 
 
@@ -63,7 +63,7 @@ def test_put_invalid() -> None:
     # arrange
     gast_id: Final = 40
     geaenderter_gast_invalid: Final = {
-        "vorname": "Vornameput",
+        "vorname": "Mia",
         "nachname": "falscher_nachname_put",
         "email": "falsche_email_put@",
         "treuestufe": 11,
@@ -102,8 +102,8 @@ def test_put_nicht_vorhanden() -> None:
     gast_id: Final = 999999
     if_match: Final = '"0"'
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": EMAIL_UPDATE,
         "treuestufe": 9,
         "has_newsletter": False,
@@ -136,10 +136,10 @@ def test_put_email_exists() -> None:
     # arrange
     gast_id: Final = 40
     if_match: Final = '"1"'
-    email_exists: Final = "alice@acme.de"
+    email_exists: Final = "lena.becker@acme.de"
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": email_exists,
         "treuestufe": 9,
         "has_newsletter": False,
@@ -173,8 +173,8 @@ def test_put_ohne_versionsnr() -> None:
     # arrange
     gast_id: Final = 40
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": EMAIL_UPDATE,
         "treuestufe": 9,
         "has_newsletter": False,
@@ -207,8 +207,8 @@ def test_put_alte_versionsnr() -> None:
     gast_id: Final = 40
     if_match: Final = '"-1"'
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": EMAIL_UPDATE,
         "treuestufe": 9,
         "has_newsletter": False,
@@ -242,8 +242,8 @@ def test_put_ungueltige_versionsnr() -> None:
     gast_id: Final = 40
     if_match: Final = '"xy"'
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": EMAIL_UPDATE,
         "treuestufe": 9,
         "has_newsletter": False,
@@ -278,8 +278,8 @@ def test_put_versionsnr_ohne_quotes() -> None:
     gast_id: Final = 40
     if_match: Final = "0"
     geaenderter_gast: Final = {
-        "vorname": "Vornameput",
-        "nachname": "Aliceput",
+        "vorname": "Mia",
+        "nachname": "Brandt",
         "email": EMAIL_UPDATE,
         "treuestufe": 9,
         "has_newsletter": False,

@@ -61,13 +61,13 @@ class GetUser(HttpUser):
     @task(200)
     def get_nachname(self) -> None:
         """GET-Requests mit dem Nachnamen als Query-Parameter."""
-        for teil in ["a", "i", "n", "e", "v"]:
+        for teil in ["a", "i", "n", "e", "o"]:
             self.client.get("/rest", params={"nachname": teil})
 
     @task(100)
     def get_nachnamen(self) -> None:
         """GET-Requests mit einem Teilstring als Pfadparameter für Nachnamen."""
-        for teil in ["a", "i", "n", "e", "v"]:
+        for teil in ["a", "i", "n", "e", "o"]:
             self.client.get(f"/rest/nachnamen/{teil}")
 
     @task(150)
@@ -75,11 +75,11 @@ class GetUser(HttpUser):
         """GET-Requests mit der Emailadresse als Query-Parameter."""
         for email in [
             "admin@acme.com",
-            "alice@acme.de",
-            "alice@acme.edu",
-            "alice@acme.ch",
-            "diana@acme.uk",
-            "eve@acme.jp",
+            "lena.becker@acme.de",
+            "jonas.becker@acme.edu",
+            "mia.becker@acme.ch",
+            "noah.fischer@acme.uk",
+            "emma.wagner@acme.jp",
         ]:
             self.client.get("/rest", params={"email": email})
 

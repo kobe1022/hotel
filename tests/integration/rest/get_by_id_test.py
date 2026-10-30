@@ -61,7 +61,7 @@ def test_get_by_id_not_found(gast_id: int) -> None:
 def test_get_by_id_gast() -> None:
     # arrange
     gast_id: Final = 20
-    token: Final = login(username="alice")
+    token: Final = login(username="lbecker")
     assert token is not None
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -87,7 +87,7 @@ def test_get_by_id_gast() -> None:
 @pytest.mark.parametrize("gast_id", [1, 30])
 def test_get_by_id_not_allowed(gast_id: int) -> None:
     # arrange
-    token: Final = login(username="alice")
+    token: Final = login(username="lbecker")
     assert token is not None
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -108,7 +108,7 @@ def test_get_by_id_not_allowed(gast_id: int) -> None:
 @pytest.mark.parametrize("gast_id", [0, 999999])
 def test_get_by_id_not_allowed_not_found(gast_id: int) -> None:
     # arrange
-    token: Final = login(username="alice")
+    token: Final = login(username="lbecker")
     assert token is not None
     headers = {"Authorization": f"Bearer {token}"}
 

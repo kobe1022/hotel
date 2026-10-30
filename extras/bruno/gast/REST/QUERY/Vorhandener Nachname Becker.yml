@@ -1,5 +1,5 @@
 info:
-  name: Vorhandener Nachname Alice
+  name: Vorhandener Nachname Becker
   type: http
   seq: 1
 
@@ -14,7 +14,7 @@ http:
     type: json
     data: |-
       {
-          "nachname": "Alice"
+          "nachname": "Becker"
       }
   auth: inherit
 
