@@ -63,7 +63,7 @@ Berechtigung zum Ändern vom Linux-Owner und von der Linux-Group (s.u.).
 ```
 
 Um die SQL-Skripte sowie Zertifikat und privater Schlüssel für TLS aus dem
-Original-Verzeichnis `init\gast\sql` bzw. `init\gast\tls` in das Named Volume
+Original-Verzeichnis `init\gast\sql` bzw. `init\tls` in das Named Volume
 `pg_init` kopieren zu können, wurde das lokale Verzeichnis `.\init` in `/tmp/init`
 bereitgestellt. In der _bash_ werden deshalb die SQL-Skripte sowie Zertifikat und
 privater Schlüssel aus dem Verzeichnis `/tmp/init` nach `/init` und deshalb in

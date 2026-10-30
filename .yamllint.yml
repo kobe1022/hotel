@@ -1,0 +1,16 @@
+---
+# Aufruf:   uv tool install yamllint
+#           uvx yamllint .\extras\compose\postgres\compose.yml
+
+extends: default
+
+# Die Dateien der Bruno-Collection werden von Bruno erzeugt
+ignore: |
+  extras/bruno/
+
+# https://yamllint.readthedocs.io/en/stable/rules.html
+rules:
+  line-length:
+    max: 120
+  comments:
+    require-starting-space: false

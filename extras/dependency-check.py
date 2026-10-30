@@ -12,7 +12,7 @@ from sysconfig import get_platform
 from dotenv import load_dotenv
 
 load_dotenv()
-nvd_api_key = environ.get('NVD_API_KEY')
+nvd_api_key = environ.get("NVD_API_KEY")
 print(f"nvd_api_key={nvd_api_key}")
 
 project = "Hotelgast"

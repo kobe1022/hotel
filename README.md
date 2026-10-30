@@ -3,19 +3,14 @@
 REST- und GraphQL-Service für die Verwaltung von Hotelgästen mit FastAPI, SQLAlchemy,
 PostgreSQL, Keycloak und uv. Entstanden als Gruppenprojekt an der Hochschule Karlsruhe.
 
-Aufbau und Struktur orientieren sich an einem Beispielprojekt aus der
-Lehrveranstaltung (Hochschule Karlsruhe, GPL-3.0).
-
 ## Status
 
-In Arbeit. Das Projekt wird schrittweise aufgebaut (siehe Issues bzw. Project Board).
-
-Bereits vorhanden sind: Server mit TLS, Konfiguration, Entities, Repository,
+Vorhanden sind: Server mit TLS, Konfiguration, Entities, Repository,
 PostgreSQL-Anbindung, Service-Schicht, REST- und GraphQL-Schnittstelle, Zugriffsschutz
 mit Keycloak, Neuladen von Datenbank und Keycloak im Entwicklungsmodus, E-Mail-Versand
 (Mailpit), Excel-Export, Tests, Lasttest (Locust), eine Bruno-Collection, Docker-Images
 mit Docker Compose und die Dokumentation mit mkdocs (siehe
-[Dokumentation](#dokumentation)). Noch offen sind Abschlussarbeiten.
+[Dokumentation](#dokumentation)).
 
 ## Autoren
 
@@ -46,6 +41,7 @@ _uv_ angelegt wurde.
 
 - [Backend-Server](#backend-server)
 - [Applikationsserver](#applikationsserver)
+- [Docker Image und Container](#docker-image-und-container)
 - [Anmeldung mit Keycloak](#anmeldung-mit-keycloak)
 - [Testen](#testen)
 - [Statische Codeanalyse](#statische-codeanalyse)
@@ -99,12 +95,38 @@ Als Administrator kann man Keycloak auch während des Betriebs durch einen
 `QUERY`-Request auf `/dev/keycloak_populate` neu laden. Dazu ist ein Access Token
 mit der Rolle `ADMIN` erforderlich.
 
+## Docker Image und Container
+
+Das Standard-Image auf Basis von _Alpine_ wird mit _docker buildx bake_ gebaut. Das
+_hardened_ Image auf Basis von _Debian 13_ (`Dockerfile`) benötigt einen Zugang zu
+`dhi.io` (`docker login dhi.io`):
+
+```shell
+    docker buildx bake
+    docker build -t gast:0.1.0-hardened .
+```
+
+Der Applikationsserver kann einschließlich der Backend-Server als Container gestartet
+werden. Dann dürfen die Backend-Server nicht schon einzeln laufen:
+
+```shell
+    # Windows
+    cd .\extras\compose\gast
+
+    # macOS / Linux
+    cd ./extras/compose/gast
+
+    docker compose up
+```
+
+Weitere Hinweise stehen in [README.install.md](README.install.md).
+
 ## Anmeldung mit Keycloak
 
 Nachdem _Keycloak_ gemäß `extras\compose\keycloak\ReadMe.md` eingerichtet ist,
-muss in `src\gast\config\resources\app.toml` bei `client-secret` das _Client Secret_
-aus Keycloak eingetragen werden. Der Wert `Change Me!` ist nur ein Platzhalter.
-Ein echtes Secret sollte man nicht ins Repository einchecken.
+muss das _Client Secret_ des Clients `python-client` mit dem Eintrag `client-secret`
+in `src\gast\config\resources\app.toml` übereinstimmen. Das Secret findet man in
+Keycloak im Tab `Credentials` des Clients (siehe dort den Abschnitt _Client Secret_).
 
 Es gibt die Rollen `ADMIN` und `GAST`. Einen Access Token erhält man durch einen
 `QUERY`-Request auf `/auth/token` mit einem JSON-Datensatz im Request-Body:
@@ -123,7 +145,7 @@ man bei weiteren Requests als _Bearer Token_ im Header `Authorization`.
 
 _pytest_ <https://docs.pytest.org> ist eine bessere Alternative zu _unittest_ aus der
 Python-Distribution. Die Tests liegen unterhalb von `tests` und sind in
-`tests\unit` und `tests\integration` aufgeteilt. Sie werden noch ergänzt.
+`tests\unit` und `tests\integration` aufgeteilt.
 
 Vor Integrationstests müssen DB-Server, Keycloak-Server und Appserver gestartet sein.
 
@@ -136,12 +158,13 @@ Vor Integrationstests müssen DB-Server, Keycloak-Server und Appserver gestartet
 ## Statische Codeanalyse
 
 _ruff_ als Linter und _ty_ sowie _pyrefly_ als "Type Checker" werden als Tool für _uv_
-installiert:
+installiert. Für YAML-Dateien gibt es zusätzlich _yamllint_:
 
 ```shell
     uv tool install ruff
     uv tool install ty
     uv tool install pyrefly
+    uv tool install yamllint
 ```
 
 Danach kann man diese Werkzeuge folgendermaßen aufrufen:
@@ -152,7 +175,11 @@ Danach kann man diese Werkzeuge folgendermaßen aufrufen:
 
     ty check src tests/unit tests/integration
     pyrefly check --output-format full-text [--verbose]
+    yamllint extras\compose mkdocs.yml
 ```
+
+Die Konfiguration von _yamllint_ steht in `.yamllint.yml`. Die Konfiguration für
+_markdownlint_, z.B. als Erweiterung in VS Code, steht in `.markdownlint.yml`.
 
 ## Analyse von Sicherheitslücken
 

@@ -59,8 +59,8 @@ zugegriffen:
 
 _Keycloak_ wird als Docker Container gestartet werden, wobei die Daten sowie das
 Zertifikat und der private Schlüssel in einem _Named Volume_ abgespeichert
-werden. Das selbst-signierte Zertifikat ist in der Datei `extras\compose\keycloak\certificate.crt`
-und der private Schlüssel in `extras\compose\keycloak\key.pem` bereitgestellt.
+werden. Das selbst-signierte Zertifikat ist in der Datei `extras\compose\keycloak\tls\certificate.crt`
+und der private Schlüssel in `extras\compose\keycloak\tls\key.pem` bereitgestellt.
 Zunächst wird das Named Volume `kc_data` für die künftigen Daten und das Named
 Volume `kc_tls` für das Zertifikat und den privaten Schlüssel angelegt:
 
@@ -244,22 +244,27 @@ Die Defaultwerte sind in `src\gast\config\keycloak.py` definiert.
 
 ## Client Secret
 
-In der Datei `src\gast\config\resources\app.toml` muss man `client-secret` auf
-folgenden Wert aus _Keycloak_ setzen:
+Das _Client Secret_ des Clients `python-client` steht bei `client-secret` in den beiden
+Dateien
+
+- `src\gast\config\resources\app.toml` (Server auf dem eigenen Rechner) und
+- `extras\compose\gast\app.toml` (Server im Docker Container).
+
+Der Client `python-client` in _Keycloak_ muss dasselbe Secret haben. Man findet es dort
+folgendermaßen:
 
 - Menüpunkt `Clients`
 - `python-client` aus der Liste beim voreingestellten Tab `Clients list` auswählen
 - Tab `Credentials` anklicken
-- Die Zeichenkette beim Label `Client Secret` kopieren.
+- Die Zeichenkette beim Label `Client Secret` ablesen.
 
-Diese Zeichenkette wird auch für _Bruno_ und `extras\compose\gast\app.toml`
-benötigt.
+Auch _Bruno_ benötigt dieses Secret (Variable `clientSecret`, siehe
+`extras\bruno\ReadMe.md`).
+
+Stimmt das Secret in _Keycloak_ nicht mit dem Wert in der `app.toml` überein, meldet
+_Keycloak_ beim Start des Servers `Invalid client credentials`.
 
 ## Ergänzung des eigenen Server-Projekts
-
-Im Wurzelverzeichnis des Projekts in der Datei `.env` muss man die
-Umgebungsvariable `CLIENT_SECRET` auf den Wert vom obigen _Client Secret_ aus
-_Keycloak_ setzen.
 
 In der Datei `src\gast\security\auth_router.py` ist eine REST-Schnittstelle
 implementiert, mit der man durch einen QUERY-Request mit dem Pfad `/auth/token`
