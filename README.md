@@ -13,9 +13,9 @@ In Arbeit. Das Projekt wird schrittweise aufgebaut (siehe Issues bzw. Project Bo
 Bereits vorhanden sind: Server mit TLS, Konfiguration, Entities, Repository,
 PostgreSQL-Anbindung, Service-Schicht, REST- und GraphQL-Schnittstelle, Zugriffsschutz
 mit Keycloak, Neuladen von Datenbank und Keycloak im Entwicklungsmodus, E-Mail-Versand
-(Mailpit), Excel-Export, Tests, Lasttest (Locust) und eine Bruno-Collection.
-Dokumentation mit mkdocs (siehe [Dokumentation](#dokumentation)) ist eingerichtet.
-Noch offen sind u.a. Docker-Image mit CI und Abschlussarbeiten.
+(Mailpit), Excel-Export, Tests, Lasttest (Locust), eine Bruno-Collection, Docker-Images
+mit Docker Compose und die Dokumentation mit mkdocs (siehe
+[Dokumentation](#dokumentation)). Noch offen sind Abschlussarbeiten.
 
 ## Autoren
 
@@ -25,7 +25,8 @@ Noch offen sind u.a. Docker-Image mit CI und Abschlussarbeiten.
 ## Einrichtung
 
 Voraussetzungen sind _uv_, Python `>=3.15` (siehe `requires-python` in
-`pyproject.toml`) und _Docker_. In einer Shell (PowerShell bei Windows oder bash
+`pyproject.toml`) und _Docker_. Eine ausführliche Schritt-für-Schritt-Anleitung steht in
+[README.install.md](README.install.md). In einer Shell (PowerShell bei Windows oder bash
 bei macOS) im Projektverzeichnis:
 
 ```shell
